@@ -71,14 +71,8 @@ async def get_client(use_service_role: bool = False) -> AsyncClient:
 
 
 async def close_clients() -> None:
-    """Close client connections."""
-    global _client, _service_client
-    if _client:
-        await _client.aclose()
-        _client = None
-    if _service_client:
-        await _service_client.aclose()
-        _service_client = None
+    """Close client connections - no-op as AsyncClient manages its own connections."""
+    pass
 
 
 # ============================================================================
@@ -827,11 +821,11 @@ async def upsert_full_institution(
     
     await log_crawl(
         institution_id=inst_id, institution_name=institution["name"],
-        url=sources[0]["url"] if sources else institution.get("website", ""),
+        url=(sources or [{}])[0].get("url") if sources else institution.get("website", ""),
         status="success", confidence=institution.get("confidence", {}).get("overall", "low"),
         academic_session=academic_session, pages_crawled=len(sources) if sources else 1,
         metadata={"upsert_results": results},
-        storage_paths=[s.get("storage_path") for s in sources if s.get("storage_path")],
+        storage_paths=[s.get("storage_path") for s in (sources or []) if s.get("storage_path")],
     )
     
     return results

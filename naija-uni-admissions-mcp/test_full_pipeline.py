@@ -86,7 +86,7 @@ async def run_pipeline(name: str = "University of Lagos", upsert: bool = True):
             if institution.admission_requirements:
                 admission_reqs = {
                     "olevel_credits_min": institution.admission_requirements.olevel_credits_min,
-                    "utme_cutoff_general": institution.admission_requirements.utme_cutoff_general,
+                    "minimum_jamb": institution.admission_requirements.utme_cutoff_general,
                     "direct_entry_requirements": institution.admission_requirements.direct_entry_requirements,
                 }
             
@@ -167,7 +167,4 @@ if __name__ == "__main__":
     parser.add_argument("--no-upsert", action="store_true", help="Skip Supabase upsert")
     args = parser.parse_args()
     
-    try:
-        asyncio.run(run_pipeline(name=args.institution, upsert=not args.no_upsert))
-    finally:
-        asyncio.run(close_clients())
+    asyncio.run(run_pipeline(name=args.institution, upsert=not args.no_upsert))

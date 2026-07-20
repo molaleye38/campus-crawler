@@ -30,8 +30,8 @@ from .website_mapper import (
 )
 
 SUPABASE_ENABLED = True
-AI_EXTRACTION_ENABLED = True  # Toggle for AI vs regex-only mode
-WEBSITE_MAPPER_ENABLED = False  # Toggle for Phase 3 website mapper
+AI_EXTRACTION_ENABLED = False  # Toggle for AI vs regex-only mode
+WEBSITE_MAPPER_ENABLED = True  # Toggle for Phase 3 website mapper
 
 
 def _queries_for(seed) -> list[tuple[str, list[str] | None]]:
