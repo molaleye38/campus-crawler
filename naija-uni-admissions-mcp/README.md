@@ -34,9 +34,11 @@ Cross-type queries are first-class -- e.g., "show me all polytechnics in Lagos w
 
 ### 1. Install
 
+Use Python 3.11 or 3.12. The project is intentionally pinned below Python 3.13 because the crawler stack depends on browser/Pydantic tooling that should be tested before adopting newer Python releases.
+
 ```bash
 cd naija-uni-admissions-mcp
-uv sync
+uv sync --extra dev
 ```
 
 ### 2. Install Playwright browser (one-time, ~300MB)
@@ -103,7 +105,7 @@ Returns:
     "paths": {                       # absolute paths to output artifacts
         "json": "...", "csv": "...", "db": "..."
     },
-    "remaining_quota": {             # page counter (was Firecrawl credits, now just a counter)
+    "remaining_quota": {             # page counter
         "used_this_month": int,
         "limit": 1000000,
         "remaining": int,
@@ -123,7 +125,7 @@ Add this to your `opencode.json` (or `~/.config/opencode/opencode.json`):
     "naija-admissions": {
       "type": "local",
       "command": ["uv", "run", "--directory", "<absolute-path>/naija-uni-admissions-mcp", "python", "-m", "naija_admissions.server"],
-      "environment": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" },
+      "environment": { "MAX_PAGES_PER_RUN": "${MAX_PAGES_PER_RUN}" },
       "enabled": true
     }
   }
@@ -157,14 +159,28 @@ WHERE institution_type = 'polytechnic'
 ## Resume + quota gate
 
 - `state.json` schema tracks per-institution status: `pending | in_progress | completed | failed`
-- Monthly Firecrawl credits are counted in `state.json` and reset automatically on the 1st of each month (or when you delete `credits_used_month` from state)
-- The scraper pauses new work when `credits_used_month >= 950` (safe threshold under the 1,000/month free tier)
+- Page usage is counted in `state.json` and reset automatically on the 1st of each month (or when you delete `credits_used_month` from state)
+- The scraper pauses new work when `MAX_PAGES_PER_RUN` would be exceeded for a single invocation
 - Interrupt anytime — re-invoking `run_admissions_scrape(resume=true)` continues exactly from where you left off, even across process restarts
 
 ## Security note
 
-`FIRECRAWL_API_KEY` is read from `os.environ` — never committed to code. `.gitignore` excludes `.env` and `data/`.
+Secrets are read from `os.environ` — never commit `.env` values. `.gitignore` excludes `.env` and `data/`.
 
 ## License
 
 MIT
+
+
+## Development checks
+
+Sprint 0's local reliability gate is:
+
+```bash
+uv sync --extra dev
+uv run ruff check src tests
+uv run pytest
+uv run mypy src
+```
+
+CI runs the same checks on Python 3.11 and 3.12. `mypy` is currently a documented Sprint 0 exception: it runs in CI with `continue-on-error` because the existing codebase has broad untyped Supabase/storage/parser surfaces that need a dedicated typing cleanup sprint. `ruff` and `pytest` remain required gates. If a future dependency requires Python 3.13+, update `requires-python`, CI, and this section in the same change.

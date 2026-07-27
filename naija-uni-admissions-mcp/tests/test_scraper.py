@@ -30,7 +30,12 @@ from naija_admissions.models import (
     InstitutionType,
     OwnershipType,
 )
-from naija_admissions.scraper import WEBSITE_MAPPER_ENABLED, _apply_extracted_knowledge, scrape_one
+from naija_admissions.scraper import (
+    WEBSITE_MAPPER_ENABLED,
+    _apply_extracted_knowledge,
+    _infer_website_from_sources,
+    scrape_one,
+)
 
 
 @pytest.fixture
@@ -189,6 +194,7 @@ class TestScraperOneIntegration:
             assert isinstance(inst, Institution)
             assert inst.name == "University of Lagos"
 
+
     @pytest.mark.asyncio
     async def test_scraper_no_raw_chunks_returns_early(self, sample_seed):
         mock_client = AsyncMock()
@@ -212,3 +218,56 @@ class TestScraperConfigFlags:
         assert hasattr(scraper, "map_institution_website")
         assert hasattr(scraper, "filter_urls_for_scraping")
         assert hasattr(scraper, "SiteMap")
+
+
+class TestWebsiteInference:
+    """Test source-based website inference."""
+
+    def test_infers_credible_website_from_sources(self, sample_seed):
+        sample_seed.website = None
+        from naija_admissions.models import Source
+
+        sources = [
+            Source(url="https://jamb.gov.ng/institution/unilag"),
+            Source(url="https://unilag.edu.ng/admissions"),
+        ]
+
+        assert _infer_website_from_sources(sources, sample_seed) == "https://unilag.edu.ng/admissions"
+
+
+class TestScraperSmoke:
+    """Smoke tests for scrape_one using a mocked Crawl4AI client."""
+
+    @pytest.mark.asyncio
+    async def test_scrape_one_parses_mocked_admission_page(self, sample_seed):
+        from naija_admissions import scraper
+
+        markdown = """
+        Admissions for the 2025/2026 session are open.
+        The UTME cut-off mark is 200.
+        Apply through https://applications.unilag.edu.ng before the deadline.
+        Tuition fee: NGN 100,000 per session.
+        Programmes:
+        - Computer Science (B.Sc)
+        - Medicine and Surgery (MBBS)
+        """
+        mock_client = AsyncMock()
+        mock_client.search = AsyncMock(return_value=[])
+        mock_client.scrape = AsyncMock(return_value=markdown)
+
+        with patch.object(scraper, "map_institution_website", new_callable=AsyncMock) as mock_mapper:
+            mock_mapper.side_effect = RuntimeError("force search fallback")
+            with patch.object(
+                scraper,
+                "_pick_urls",
+                return_value=["https://unilag.edu.ng/admissions"],
+            ):
+                inst = await scrape_one(sample_seed, mock_client, lambda _n: None)
+
+        assert inst.name == "University of Lagos"
+        assert inst.admission_requirements is not None
+        assert inst.admission_requirements.utme_cutoff_general == 200
+        assert inst.fee_tiers
+        assert inst.programs
+        assert inst.website == "https://unilag.edu.ng"
+        assert inst.sources[0].provider == "crawl4ai"

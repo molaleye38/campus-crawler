@@ -299,6 +299,47 @@ def _apply_extracted_knowledge(inst: Institution, extracted: ExtractedKnowledge,
                     inst.admission_requirements.utme_cutoff_general = int(general[0].merit_cutoff or 0)
 
 
+def _infer_website_from_sources(sources: list[Source], seed) -> str | None:
+    """Pick the most credible non-regulator source URL as the institution website."""
+    seed_tokens = [tok.lower() for tok in seed.name.split() if len(tok) > 3]
+    state = (seed.state or "").lower()
+    blocked_domains = (
+        "jamb.gov.ng",
+        "nuc.edu.ng",
+        "nbte.gov.ng",
+        "ncce",
+        "facebook.com",
+        "twitter.com",
+        "x.com",
+        "reddit.com",
+    )
+
+    candidates: list[tuple[int, str]] = []
+    for source in sources:
+        url = source.url
+        url_l = url.lower()
+        if any(domain in url_l for domain in blocked_domains):
+            continue
+
+        score = 0
+        if ".edu" in url_l or ".edu.ng" in url_l:
+            score += 25
+        if seed.website and seed.website.lower().rstrip("/") in url_l.rstrip("/"):
+            score += 100
+        score += sum(5 for token in seed_tokens if token in url_l)
+        if state and state in url_l:
+            score += 3
+        if "admission" in url_l:
+            score += 2
+        if score > 0:
+            candidates.append((score, url))
+
+    if not candidates:
+        return None
+    candidates.sort(reverse=True)
+    return candidates[0][1]
+
+
 async def scrape_one(
     seed,
     client: Crawl4AIClient,
@@ -453,13 +494,8 @@ async def scrape_one(
         inst.faculties = faculties
         inst.programs = programs
 
-    # If website not already captured and we found a credible one, grab it
     if not inst.website:
-        for s in sources:
-            if "jamb.gov.ng" in s.url:
-                continue
-            if any(tok in s.url.lower() for tok in seed.name.lower().split()) and "edunig" in s.url.lower() or seed.state in s.url:
-                pass
+        inst.website = _infer_website_from_sources(sources, seed)
 
     inst.sources = merge_sources(sources, [])
     inst.compute_confidence()

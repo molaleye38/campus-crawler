@@ -43,5 +43,3 @@ _test_migration.py
 _verify_kb.py
 _verify_ui_data.py
 
-# uv
-.python-version

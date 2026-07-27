@@ -5,9 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "naija-admissions"
 version = "0.1.0"
-description = "MCP server exposing a tool to scrape admission data for Nigerian tertiary institutions (universities, polytechnics, colleges of education) via Firecrawl."
+description = "MCP server exposing a tool to scrape admission data for Nigerian tertiary institutions (universities, polytechnics, colleges of education) via Crawl4AI."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "MostepAfrica" }]
 keywords = ["mcp", "nigeria", "admissions", "crawl4ai", "education"]
