@@ -36,6 +36,7 @@ except ImportError:
 SUPABASE_ENABLED = True
 AI_EXTRACTION_ENABLED = True  # Sprint C: flip on NVIDIA extraction
 WEBSITE_MAPPER_ENABLED = True  # Toggle for Phase 3 website mapper
+DRY_RUN = False  # Sprint G: if True, skip Supabase upserts and storage uploads
 
 
 def _queries_for(seed) -> list[tuple[str, list[str] | None]]:
@@ -475,7 +476,7 @@ async def scrape_one(
     inst.sources = merge_sources(sources, [])
     
     # Store crawl artifacts in Supabase Storage (Sprint A — wired)
-    if store_crawl_artifacts and SUPABASE_ENABLED:
+    if store_crawl_artifacts and SUPABASE_ENABLED and not DRY_RUN:
         try:
             session_str = (getattr(seed, 'academic_session', None) or '2025/2026')
             artifacts = store_crawl_artifacts(
@@ -488,6 +489,8 @@ async def scrape_one(
             safe_log("storage_artifacts_stored", name=seed.name, artifacts=list(artifacts.keys()))
         except Exception as e:
             safe_log("storage_artifacts_failed", name=seed.name, error=str(e))
+    elif DRY_RUN:
+        safe_log("dry_run_skip_storage", name=seed.name)
     
     inst.compute_confidence()
     return inst

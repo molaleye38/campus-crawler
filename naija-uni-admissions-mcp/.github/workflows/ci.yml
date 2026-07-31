@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [crawl-*, master]
+  pull_request:
+    branches: [crawl-*, master]
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install ruff
+      - run: ruff check src
+
+  typecheck:
+    name: Type check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install mypy pydantic
+      - run: mypy src --ignore-missing-imports
+
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest pytest-asyncio pydantic httpx structlog crawl4ai supabase boto3 pdfplumber python-dotenv
+      - run: pytest --tb=short

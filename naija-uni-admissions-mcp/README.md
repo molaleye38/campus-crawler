@@ -16,10 +16,10 @@ Output formats: `data/institutions.json` + `data/institutions.csv` + `data/insti
 
 | Type | Federal | State | Private | Total | Source |
 |---|---|---|---|---|---|
-| Universities | ~43 | ~48 | ~79 | ~270 | NUC public list |
-| Polytechnics | ~38 | ~45 | ~70+ | ~150 | Wikipedia (NBTE) |
-| Colleges of Education | ~27 | ~54 | ~82 | ~163 | Wikipedia (NCCE) |
-| **Total** | | | | **~580** | |
+| Universities | 46 | 47 | 7 | ~100 | NUC public list + seed |
+| Polytechnics | 4 | 5 | 2 | ~11 | NBTE public list |
+| Colleges of Education | 21 | 47 | 185 | ~253 | NCCE public list |
+| **Total** | | | | **314 (current seeds)** | |
 
 ## Why three institution types?
 
@@ -123,7 +123,7 @@ Add this to your `opencode.json` (or `~/.config/opencode/opencode.json`):
     "naija-admissions": {
       "type": "local",
       "command": ["uv", "run", "--directory", "<absolute-path>/naija-uni-admissions-mcp", "python", "-m", "naija_admissions.server"],
-      "environment": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" },
+      "environment": { "NVIDIA_API_KEY": "${NVIDIA_API_KEY}", "SUPABASE_URL": "${SUPABASE_URL}", "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}" },
       "enabled": true
     }
   }
@@ -157,13 +157,21 @@ WHERE institution_type = 'polytechnic'
 ## Resume + quota gate
 
 - `state.json` schema tracks per-institution status: `pending | in_progress | completed | failed`
-- Monthly Firecrawl credits are counted in `state.json` and reset automatically on the 1st of each month (or when you delete `credits_used_month` from state)
-- The scraper pauses new work when `credits_used_month >= 950` (safe threshold under the 1,000/month free tier)
-- Interrupt anytime — re-invoking `run_admissions_scrape(resume=true)` continues exactly from where you left off, even across process restarts
+- `MAX_PAGES_PER_RUN` (default 0 = unlimited) caps pages scraped per invocation; long runs can be resumed by re-invoking the tool.
+- Interrupt anytime — re-invoking `run_admissions_scrape(resume=true)` continues exactly from where you left off, even across process restarts.
+
+## Supabase
+
+Production knowledge base lives in Supabase (22 production tables + 2 staging tables, see `supabase_schema.sql`). Apply the schema via Supabase Dashboard → SQL Editor:
+
+1. `migrations/02_add_all_columns.sql` — adds missing columns to existing tables (idempotent)
+2. `migrations/10_extensions_enums.sql` through `migrations/99_end_comment.sql` — full schema (split into 12 chunks because the Dashboard truncates large statements)
+
+See `CHANGELOG.md` for the full Firecrawl→Crawl4AI migration history.
 
 ## Security note
 
-`FIRECRAWL_API_KEY` is read from `os.environ` — never committed to code. `.gitignore` excludes `.env` and `data/`.
+API keys (`NVIDIA_API_KEY`, `SUPABASE_*`) are read from `os.environ` — never committed to code. `.gitignore` excludes `.env` and `data/`.
 
 ## License
 
