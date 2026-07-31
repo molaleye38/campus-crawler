@@ -5,14 +5,9 @@ from __future__ import annotations
 import re
 
 from ..models import CatchmentArea, CatchmentPolicy, InstitutionType
+from ..utils import ELDS_STATES
 
-# Educationally Less Developed States (ELDS) — JAMB's recognized list.
-# Used as default for federal universities when explicit catchment not found.
-ELDS_STATES = [
-    "Adamawa", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", "Gombe",
-    "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Nasarawa",
-    "Niger", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
-]
+ELDS_STATES = list(ELDS_STATES)
 
 _CATCHMENT_PATTERNS = [
     r"catchment\s*(?:area|states?)\s*[:\-]?\s*([^.]+)",

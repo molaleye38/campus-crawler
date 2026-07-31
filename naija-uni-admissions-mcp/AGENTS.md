@@ -57,8 +57,8 @@ src/naija_admissions/
 ├── utils.py               (polite_delay, NGN->USD, structlog setup)
 ├── scraper.py             (per-institution pipeline orchestration)
 ├── normalizer.py          (dedupe sources, unify name spellings)
-├── supabase_client.py     (Supabase connection, upsert helpers)
-├── supabase_writer.py     (production + staging table upserts)
+├── supabase_ops.py        (single canonical Supabase writer — replaces old supabase_client.py + supabase_writer.py)
+├── storage.py             (Supabase Storage via boto3 S3 — bucket setup, upload, presigned URLs)
 ├── parsers/
 │   ├── requirements_parser.py  (type-aware UTME cutoff ranges)
 │   ├── fees_parser.py          (NGN->USD conversion)
@@ -99,35 +99,43 @@ Staging layer:
 
 ## Supabase Integration Flow
 1. Crawler extracts data → builds `Institution` Pydantic model
-2. After successful crawl, `supabase_writer.crawl_and_upsert_institution()` upserts to:
-   - `institutions`, `faculties`, `programs`, `admission_requirements`
-   - `departmental_cutoffs`, `catchment`, `source_documents`, `crawl_logs`
-3. Raw extracted data also stored in `raw_crawl_data` for review
-4. On approval, `validated_data` promoted to production tables
-5. Campus Compass app reads directly from production tables
+2. After successful crawl, `supabase_ops.upsert_full_institution()` upserts to:
+   - `institutions`, `faculties`, `departments`, `courses`
+   - `admission_requirements`, `departmental_cutoffs`, `catchment`
+   - `fees`, `deadlines`, `source_documents`, `crawl_logs`
+3. Crawl artifacts (HTML/markdown/PDF/screenshots) uploaded to Supabase Storage via `storage.store_crawl_artifacts()`
+4. Raw extracted data also stored in `raw_crawl_data` for review
+5. On approval, `validated_data` promoted to production tables
+6. Campus Compass app reads directly from production tables
 
 ## Supabase client usage
 
-Both modules use the **async** Supabase client (`supabase._async.client.AsyncClient`).
-Every I/O function is `async def` and must be awaited.
+Only `supabase_ops.py` (the canonical writer) is used. The old `supabase_client.py` and `supabase_writer.py` were removed in Sprint B. Uses the **async** Supabase client (`supabase._async.client.AsyncClient`). Every I/O function is `async def` and must be awaited.
 
 ```python
-from naija_admissions.supabase_writer import (
-    get_client,                  # async — `await get_client()`
-    upsert_institution,          # async
-    upsert_program,              # async
+from naija_admissions.supabase_ops import (
+    get_client,                  # async — `await get_client(use_service_role=True)`
+    upsert_institution,          # async — single institution upsert
+    upsert_faculty,              # async
+    upsert_course,               # async
+    upsert_admission_requirements,  # async
+    upsert_fees,                 # async
+    upsert_deadline,             # async
     upsert_departmental_cutoff,  # async
     upsert_catchment,            # async
-    log_crawl,                   # async (institution_id is the first arg after institution_name)
-    crawl_and_upsert_institution, # async — high-level: takes a Pydantic model dict
+    upsert_source_document,      # async
+    log_crawl,                   # async
+    upsert_full_institution,     # async — high-level: takes a payload dict
+    stage_raw_crawl,             # async — staging
+    promote_to_validated,        # async — promote after review
 )
 ```
 
 Common gotchas:
 - `get_client()` is async — do `await get_client(use_service_role=True)`
 - `.table(...).execute()` returns a coroutine — always `await` it before reading `.data`
-- `log_crawl` order in `supabase_writer.py` is `(institution_id, institution_name, url, status, ...)`, unlike `supabase_client.py` where it's keyword-driven
-- `crawl_and_upsert_institution()` expects `institution` to be a Pydantic dict (`model.model_dump(mode="json")`)
+- `log_crawl(institution_id, url, status, ...)` — institution_id first, then url/status
+- `upsert_full_institution(payload)` expects a dict with keys: `institution`, `faculties`, `programs`, `admission_requirements`, `fees`, `deadlines`, `catchment`, `cutoffs`
 
 ## Schema idempotency
 

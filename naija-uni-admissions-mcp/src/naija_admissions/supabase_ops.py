@@ -1026,13 +1026,7 @@ async def migrate_kb_to_unified(kb_db_path: str) -> dict:
     return stats
 
 
-def slugify(name: str) -> str:
-    slug = name.lower().strip()
-    for ch in " ,.-'/":
-        slug = slug.replace(ch, "_")
-    while "__" in slug:
-        slug = slug.replace("__", "_")
-    return slug.strip("_")
+
 
 
 # ============================================================================

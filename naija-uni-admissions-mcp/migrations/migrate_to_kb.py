@@ -20,6 +20,7 @@ DB_PATH = DATA_DIR / "institutions.db"
 
 sys.path.insert(0, str(PROJECT_DIR / "src"))
 
+from naija_admissions.utils import ELDS_STATES
 from naija_admissions.writers.kb_schema import connect_kb
 from naija_admissions.writers.kb_writer import (
     upsert_admission_requirements_kb,
@@ -31,11 +32,7 @@ from naija_admissions.writers.kb_writer import (
     upsert_source_document_kb,
 )
 
-_ELDS_STATES = [
-    "Adamawa", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", "Gombe", "Jigawa",
-    "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Nasarawa", "Niger", "Plateau",
-    "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
-]
+_ELDS_STATES = list(ELDS_STATES)
 _CATCHMENT_POLICY = [("ELDS", "ELDS", "geographical", _ELDS_STATES, "Educationally Less Developed States (JAMB default)")]
 
 

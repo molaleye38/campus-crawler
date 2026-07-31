@@ -11,6 +11,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
+from .utils import ELDS_STATES
+
 
 class InstitutionType(StrEnum):
     UNIVERSITY = "university"
@@ -363,7 +365,7 @@ class ExtractedKnowledge(BaseModel):
 # PROMPT TEMPLATES
 # ============================================================================
 
-SYSTEM_PROMPT = """You are an expert Nigerian tertiary admissions data extractor.
+_SYSTEM_PROMPT_TEMPLATE = """You are an expert Nigerian tertiary admissions data extractor.
 
 Your task is to extract structured admission knowledge from crawled web content (HTML, PDF, Markdown) about Nigerian tertiary institutions.
 
@@ -389,9 +391,12 @@ NIGERIAN CONTEXT:
 - Course levels: undergraduate, ND, HND, NCE, postgraduate
 - UTME cutoffs: Universities 180-260, Polytechnics 120-150, COEs 100-120
 - O-Level: Minimum 5 credits including English & Mathematics
-- ELDS states (21): Adamawa, Bauchi, Bayelsa, Benue, Borno, Cross River, Gombe, Jigawa, Kaduna, Kano, Katsina, Kebbi, Kogi, Kwara, Nasarawa, Niger, Plateau, Rivers, Sokoto, Taraba, Yobe, Zamfara
+- ELDS states ({n}): {states}
 
 OUTPUT FORMAT: Single JSON object matching ExtractedKnowledge exactly."""
+
+
+SYSTEM_PROMPT = _SYSTEM_PROMPT_TEMPLATE.format(n=len(ELDS_STATES), states=", ".join(ELDS_STATES))
 
 
 def build_user_prompt(

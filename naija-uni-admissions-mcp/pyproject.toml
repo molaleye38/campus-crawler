@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "naija-admissions"
 version = "0.1.0"
-description = "MCP server exposing a tool to scrape admission data for Nigerian tertiary institutions (universities, polytechnics, colleges of education) via Firecrawl."
+description = "MCP server exposing a tool to scrape admission data for Nigerian tertiary institutions (universities, polytechnics, colleges of education) via Crawl4AI and store in Supabase."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -16,7 +16,6 @@ dependencies = [
     "mcp>=1.0.0",
     "httpx>=0.27.0",
     "pydantic>=2.6",
-    "tenacity>=8.2",
     "python-dotenv>=1.0",
     "structlog>=24.1",
     "crawl4ai>=0.9.1",

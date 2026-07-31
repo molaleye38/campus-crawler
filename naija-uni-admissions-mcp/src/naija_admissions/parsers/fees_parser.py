@@ -102,8 +102,8 @@ def parse_fees(text: str, source_url: str) -> list[FeeTier]:
                 fm = _FEE_YEAR_PATTERN.search(text)
                 if fm:
                     try:
-                        fy = int(f"20{fm.group(2)}") if len(fm.group(2)) == 2 else int(f"20{fm.group(2)}")
-                        if fy < 2000 or fy > 2100:
+                        fy = int(fm.group(1)) if fm.group(1) else (2000 + int(fm.group(2)) if fm.group(2) else None)
+                        if fy is not None and (fy < 2000 or fy > 2100):
                             fy = None
                     except ValueError:
                         fy = None

@@ -28,6 +28,8 @@ import sqlite3
 from dataclasses import dataclass, field
 from typing import Any
 
+from .utils import ELDS_STATES
+
 
 @dataclass
 class StudentProfile:
@@ -74,11 +76,7 @@ class EligibilityDecision:
         }
 
 
-_ELDS_STATES = {
-    "Adamawa","Bauchi","Bayelsa","Benue","Borno","Cross River","Gombe","Jigawa",
-    "Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Nasarawa","Niger","Plateau",
-    "Rivers","Sokoto","Taraba","Yobe","Zamfara",
-}
+_ELDS_STATES = set(ELDS_STATES)
 
 
 def _row_to_dict(row: sqlite3.Row | tuple | None) -> dict[str, Any] | None:

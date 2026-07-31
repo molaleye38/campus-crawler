@@ -459,11 +459,18 @@ async def scrape_one(
 
     # If website not already captured and we found a credible one, grab it
     if not inst.website:
+        name_tokens = [t.lower() for t in seed.name.lower().split() if len(t) > 3]
         for s in sources:
             if "jamb.gov.ng" in s.url:
                 continue
-            if any(tok in s.url.lower() for tok in seed.name.lower().split()) and "edunig" in s.url.lower() or seed.state in s.url:
-                pass
+            url_l = s.url.lower()
+            token_match = any(tok in url_l for tok in name_tokens)
+            has_uni_domain = "edu.ng" in url_l or ".edu" in url_l
+            state_match = seed.state and seed.state.lower() in url_l
+            if (token_match and has_uni_domain) or state_match:
+                inst.website = s.url
+                safe_log("website_inferred", name=seed.name, url=s.url)
+                break
 
     inst.sources = merge_sources(sources, [])
     

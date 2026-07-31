@@ -73,7 +73,7 @@ def http_safe_url(u: str | None) -> str | None:
 
 
 def trunc(s: str, n: int = 200) -> str:
-    return s if len(s) <= n else s[: n - 1] + "\u2026"
+    return s if len(s) <= n else s[: n - 1] + "…"
 
 
 def safe_log(event: str, **kw: Any) -> None:
@@ -81,3 +81,11 @@ def safe_log(event: str, **kw: Any) -> None:
         log.info(event, **kw)
     except Exception:
         pass
+
+
+ELDS_STATES: tuple[str, ...] = (
+    "Adamawa", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River",
+    "Gombe", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi",
+    "Kogi", "Kwara", "Nasarawa", "Niger", "Plateau", "Rivers",
+    "Sokoto", "Taraba", "Yobe", "Zamfara",
+)
