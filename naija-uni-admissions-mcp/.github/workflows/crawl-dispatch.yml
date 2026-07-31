@@ -1,0 +1,51 @@
+// GitHub Actions repository_dispatch listener for crawl trigger
+// When campuscompassapp.com admin calls /functions/v1/trigger-crawl,
+// this workflow runs the ck-crawl CLI with the forwarded payload.
+
+name: Crawl (admin trigger)
+
+on:
+  repository_dispatch:
+    types: [run-crawl]
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - uses: microsoft/playwright-actions/setup@v1
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Run crawler
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+        run: |
+          ck-crawl \
+            --max "${{ github.event.client_payload.max_institutions }}" \
+            --types "${{ github.event.client_payload.institution_types }}" \
+            --state "${{ github.event.client_payload.state }}"
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-logs-${{ github.run_id }}
+          path: |
+            data/*.log
+            data/state.json
+          retention-days: 7

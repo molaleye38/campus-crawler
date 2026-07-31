@@ -1,0 +1,45 @@
+name: Weekly DB Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'   # weekly Sunday 00:00 UTC
+  workflow_dispatch:        # manual trigger for ad-hoc backups
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Dump Supabase tables
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/backup_db.py
+
+      - name: Commit to backups branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B backups
+          git add backups/
+          git commit -m "Backup $(date -u +%Y-%m-%d)" || echo "Nothing to commit"
+          git push origin backups --force
+
+      - name: Prune backups older than 90 days
+        run: |
+          find backups -maxdepth 1 -type d -mtime +90 -exec rm -rf {} \;
+          git add backups/
+          git commit -m "Prune old backups" || echo "Nothing to prune"
+          git push origin backups --force
