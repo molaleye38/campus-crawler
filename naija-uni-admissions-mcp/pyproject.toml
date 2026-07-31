@@ -35,6 +35,7 @@ dev = [
 
 [project.scripts]
 naija-admissions = "naija_admissions.server:main"
+ck-crawl = "naija_admissions.runner:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/naija_admissions"]
