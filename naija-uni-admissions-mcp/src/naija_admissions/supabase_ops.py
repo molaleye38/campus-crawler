@@ -684,6 +684,14 @@ async def upsert_full_institution(
     deadlines_data: list[dict] | None = None,
     sources: list[dict] | None = None,
     academic_session: str = "2025/2026",
+    course_aliases: list[dict] | None = None,
+    subjects: list[dict] | None = None,
+    olevel_requirements: list[dict] | None = None,
+    utme_requirements: list[dict] | None = None,
+    direct_entry: list[dict] | None = None,
+    post_utme: dict | None = None,
+    aggregate_formula: dict | None = None,
+    admission_news: list[dict] | None = None,
 ) -> dict:
     """Atomically upsert a complete institution with all related data."""
     results = {}
@@ -803,6 +811,117 @@ async def upsert_full_institution(
             if dl:
                 deadline_ids.append(dl["id"])
         results["deadline_ids"] = deadline_ids
+    
+    # Sprint C: wire remaining 13 upserts
+    if course_aliases:
+        alias_ids = []
+        for ca in course_aliases:
+            prog_id = program_ids.get(ca.get("canonical_course_name"))
+            if prog_id:
+                rec = await upsert_course_alias(
+                    canonical_course_id=prog_id, alias=ca["alias"],
+                    alias_type=ca.get("alias_type", "abbreviation"),
+                )
+                if rec:
+                    alias_ids.append(rec["id"])
+        results["course_alias_ids"] = alias_ids
+    
+    subject_id_map = {}
+    if subjects:
+        for s in subjects:
+            rec = await upsert_subject(
+                name=s["name"], code=s.get("code"), subject_category=s.get("subject_category"),
+            )
+            if rec:
+                subject_id_map[s["name"]] = rec["id"]
+        results["subject_ids"] = list(subject_id_map.values())
+    
+    adm_req_id = results.get("admission_requirements_id")
+    if olevel_requirements and adm_req_id:
+        olevel_ids = []
+        for ol in olevel_requirements:
+            subj_id = subject_id_map.get(ol.get("subject_name"))
+            if subj_id:
+                rec = await upsert_olevel_requirements(
+                    admission_requirement_id=adm_req_id, subject_id=subj_id,
+                    is_required=ol.get("is_required", True),
+                    min_grade=ol.get("min_grade", "C6"), notes=ol.get("notes"),
+                )
+                if rec:
+                    olevel_ids.append(rec["id"])
+        results["olevel_requirement_ids"] = olevel_ids
+    
+    if utme_requirements and adm_req_id:
+        utme_ids = []
+        for ut in utme_requirements:
+            subj_id = subject_id_map.get(ut.get("subject_name"))
+            if subj_id:
+                rec = await upsert_utme_requirements(
+                    admission_requirement_id=adm_req_id, subject_id=subj_id,
+                    is_required=ut.get("is_required", True),
+                    is_compulsory=ut.get("is_compulsory", False),
+                    notes=ut.get("notes"),
+                )
+                if rec:
+                    utme_ids.append(rec["id"])
+        results["utme_requirement_ids"] = utme_ids
+    
+    if direct_entry and adm_req_id:
+        de_ids = []
+        for de in direct_entry:
+            rec = await upsert_direct_entry(
+                admission_requirement_id=adm_req_id,
+                qualification_type=de["qualification_type"],
+                qualification_subject=de.get("qualification_subject"),
+                min_grade=de.get("min_grade"), min_cgpa=de.get("min_cgpa"),
+                accepts_ijmb=de.get("accepts_ijmb", False),
+                accepts_jupeb=de.get("accepts_jupeb", False),
+                notes=de.get("notes"),
+            )
+            if rec:
+                de_ids.append(rec["id"])
+        results["direct_entry_ids"] = de_ids
+    
+    if post_utme and adm_req_id:
+        rec = await upsert_post_utme(
+            admission_requirement_id=adm_req_id,
+            required=post_utme.get("required", True),
+            format=post_utme.get("format"), weight_pct=post_utme.get("weight_pct"),
+            min_score=post_utme.get("min_score"),
+            duration_minutes=post_utme.get("duration_minutes"),
+            subjects=post_utme.get("subjects"),
+            past_questions_url=post_utme.get("past_questions_url"),
+            notes=post_utme.get("notes"),
+        )
+        if rec:
+            results["post_utme_id"] = rec["id"]
+    
+    if aggregate_formula:
+        rec = await upsert_aggregate_formula(
+            institution_id=inst_id,
+            formula_text=aggregate_formula["formula_text"],
+            formula_json=aggregate_formula.get("formula_json"),
+            effective_from=aggregate_formula.get("effective_from", academic_session),
+            effective_to=aggregate_formula.get("effective_to"),
+            is_default=aggregate_formula.get("is_default", False),
+        )
+        if rec:
+            results["aggregate_formula_id"] = rec["id"]
+    
+    if admission_news:
+        news_ids = []
+        for n in admission_news:
+            rec = await upsert_admission_news(
+                institution_id=inst_id, title=n["title"], source_url=n["source_url"],
+                content=n.get("content"), summary=n.get("summary"),
+                published_date=n.get("published_date"),
+                news_category=n.get("news_category"),
+                is_critical=n.get("is_critical", False),
+                content_hash=n.get("content_hash"),
+            )
+            if rec:
+                news_ids.append(rec["id"])
+        results["admission_news_ids"] = news_ids
     
     if sources:
         source_ids = []

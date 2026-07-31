@@ -142,7 +142,11 @@ class NVIDIAExtractor:
                 response.raise_for_status()
                 result = response.json()
                 
-                content = result["choices"][0]["message"]["content"]
+                content = result["choices"][0]["message"].get("content")
+                if not content:
+                    last_error = "Empty content in API response"
+                    safe_log("nim_empty_content", attempt=attempt + 1)
+                    continue
                 
                 # Parse and validate
                 extracted_data = json.loads(content)

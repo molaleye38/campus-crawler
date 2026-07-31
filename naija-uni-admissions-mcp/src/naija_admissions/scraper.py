@@ -34,7 +34,7 @@ except ImportError:
     store_crawl_artifacts = None
 
 SUPABASE_ENABLED = True
-AI_EXTRACTION_ENABLED = False  # Toggle for AI vs regex-only mode
+AI_EXTRACTION_ENABLED = True  # Sprint C: flip on NVIDIA extraction
 WEBSITE_MAPPER_ENABLED = True  # Toggle for Phase 3 website mapper
 
 
