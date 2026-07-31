@@ -20,7 +20,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Ahmadu Bello University,Zaria",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Zaria",
+    state="Kaduna",
     website="https://www.abu.edu.ng",
     year_established=1962
     ),
@@ -44,7 +44,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University of Petroleum Resources,Effurun",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Effurun",
+    state="Delta",
     website="https://www.fupre.edu.ng",
     year_established=2007
     ),
@@ -52,7 +52,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University of Technology,Akure",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Akure",
+    state="Ondo",
     website="https://www.futa.edu.ng",
     year_established=1981
     ),
@@ -60,7 +60,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University of Technology,Minna",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Minna",
+    state="Niger",
     website="https://www.futminna.edu.ng",
     year_established=1982
     ),
@@ -68,7 +68,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University of Technology,Owerri",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Owerri",
+    state="Imo",
     website="https://www.futo.edu.ng",
     year_established=1980
     ),
@@ -76,7 +76,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Dutse,Jigawa State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Jigawa State",
+    state="Jigawa",
     website="https://www.fud.edu.ng",
     year_established=2011
     ),
@@ -92,7 +92,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Kashere,Gombe State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Gombe State",
+    state="Gombe",
     website="https://www.fukashere.edu.ng",
     year_established=2011
     ),
@@ -100,7 +100,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Lafia,Nasarawa State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Nasarawa State",
+    state="Nasarawa",
     website="https://www.fulafia.edu.ng",
     year_established=2011
     ),
@@ -108,7 +108,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Lokoja,Kogi State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Kogi State",
+    state="Kogi",
     website="https://www.fulokoja.edu.ng",
     year_established=2011
     ),
@@ -116,7 +116,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Alex Ekwueme University,Ndufu-Alike,Ebonyi State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Ebonyi State",
+    state="Ebonyi",
     website="https://www.funai.edu.ng",
     year_established=2011
     ),
@@ -132,7 +132,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Oye-Ekiti,Ekiti State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Ekiti State",
+    state="Ekiti",
     website="https://www.fuoye.edu.ng",
     year_established=2011
     ),
@@ -140,7 +140,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Wukari,Taraba State",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Taraba State",
+    state="Taraba",
     website="https://www.fuwukari.edu.ng",
     year_established=2011
     ),
@@ -148,7 +148,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Birnin Kebbi",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Birnin Kebbi",
+    state="Kebbi",
     website="https://www.fubk.edu.ng",
     year_established=2013
     ),
@@ -156,7 +156,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal University,Gusau Zamfara",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.FEDERAL,
-    state="Gusau Zamfara",
+    state="Zamfara",
     website="https://www.fugusau.edu.ng",
     year_established=2013
     ),
@@ -178,7 +178,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Ambrose Alli University,Ekpoma",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Ekpoma",
+    state="Edo",
     website="https://www.aauekpoma.edu.ng",
     year_established=1980
     ),
@@ -186,7 +186,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Abia State University,Uturu",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Uturu",
+    state="Abia",
     website="https://www.abiastateuniversity.edu.ng",
     year_established=1981
     ),
@@ -209,7 +209,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Olabisi Onabanjo University,Ago Iwoye",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Ago Iwoye",
+    state="Ogun",
     website="https://www.oouagoiwoye.edu.ng",
     year_established=1982
     ),
@@ -217,7 +217,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Lagos State University,Ojo",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Ojo",
+    state="Lagos",
     website="https://www.lasu.edu.ng",
     year_established=1983
     ),
@@ -225,7 +225,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Ladoke Akintola University of Technology,Ogbomoso",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Ogbomoso",
+    state="Oyo",
     website="https://www.lautech.edu.ng",
     year_established=1990
     ),
@@ -233,7 +233,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Rev. Fr. Moses Orshio Adasu (Formerly,Benue State University),Makurdi",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.STATE,
-    state="Makurdi",
+    state="Benue",
     website="https://www.bsum.edu.ng",
     year_established=1992
     ),
@@ -248,7 +248,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Babcock University,Ilishan-Remo",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ilishan-Remo",
+    state="Ogun",
     website="https://www.babcock.edu.ng",
     year_established=1999
     ),
@@ -263,7 +263,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Madonna University,Okija",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Okija",
+    state="Anambra",
     website="https://www.madonnauniversity.edu.ng",
     year_established=1999
     ),
@@ -271,7 +271,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Bowen University,Iwo",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Iwo",
+    state="Osun",
     website="https://www.bowen.edu.ng",
     year_established=2001
     ),
@@ -279,7 +279,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Benson Idahosa University,Benin City",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Benin City",
+    state="Edo",
     website="https://www.biu.edu.ng",
     year_established=2002
     ),
@@ -302,7 +302,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="American University of Nigeria,Yola",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Yola",
+    state="Adamawa",
     website="https://www.aun.edu.ng",
     year_established=2003
     ),
@@ -310,7 +310,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Ajayi Crowther University,Ibadan",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ibadan",
+    state="Oyo",
     website="https://www.acu.edu.ng",
     year_established=2005
     ),
@@ -318,7 +318,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Al-Hikmah University,Ilorin",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ilorin",
+    state="Kwara",
     website="https://www.alhikmah.edu.ng",
     year_established=2005
     ),
@@ -334,7 +334,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Bells University of Technology,Otta",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Otta",
+    state="Ogun",
     website="https://www.bellsuniversity.edu.ng",
     year_established=2005
     ),
@@ -342,7 +342,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Bingham University,New Karu",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="New Karu",
+    state="Nasarawa",
     website="https://www.binghamuni.edu.ng",
     year_established=2005
     ),
@@ -372,7 +372,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Kwararafa University,Wukari",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Wukari",
+    state="Taraba",
     website="https://www.kwararafauniversity.edu.ng",
     year_established=2005
     ),
@@ -380,7 +380,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Lead City University,Ibadan",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ibadan",
+    state="Oyo",
     website="https://www.lcu.edu.ng",
     year_established=2005
     ),
@@ -388,7 +388,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Novena University,Ogume",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ogume",
+    state="Delta",
     website="https://www.novenauniversity.edu.ng",
     year_established=2005
     ),
@@ -396,7 +396,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Redeemer's University,Ede",
     institution_type=InstitutionType.UNIVERSITY,
     type=OwnershipType.PRIVATE,
-    state="Ede",
+    state="Osun",
     website="https://www.run.edu.ng",
     year_established=2005
     ),
@@ -423,7 +423,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.POLYTECHNIC,
     type=OwnershipType.STATE,
     state="Bauchi",
-    website="https://[rector@atapolybauci.com](https://rector@atapolybauci.com)"
+    website="https://rector@atapolybauci.com"
     ),
     InstitutionSeed(
     name="Adamu Augie College of Education, Argungu",
@@ -441,15 +441,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Adamu Tafawa Balewa COE, Kangere",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Bauchi",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Bauchi"
     ),
     InstitutionSeed(
     name="Adesina College of Education, Share, Kwara State",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[www.adesinacollege.edu.ng](https://www.adesinacollege.edu.ng)"
+    website="https://www.adesinacollege.edu.ng"
     ),
     InstitutionSeed(
     name="Adigrace COE, Byepyi",
@@ -462,7 +461,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Enugu",
-    website="https://[www.atcoicoe.edu.ng](https://www.atcoicoe.edu.ng)"
+    website="https://www.atcoicoe.edu.ng"
     ),
     InstitutionSeed(
     name="Ahlus-Suffah COE, Ira",
@@ -498,7 +497,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Al-Ibadan COE",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Ibadan"
+    state="Oyo"
     ),
     InstitutionSeed(
     name="Al-Iman College of Education",
@@ -517,7 +516,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kano",
-    website="https://[mcekano.edu.ng](https://mcekano.edu.ng)"
+    website="https://mcekano.edu.ng"
     ),
     InstitutionSeed(
     name="Al-Ummah COE (UMCOED)",
@@ -530,7 +529,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kano",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Ameer Shehu Idris College of Advanced Studies, Zaria",
@@ -560,7 +559,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Angel Crown COE",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="FCT Abuja"
+    state="FCT"
     ),
     InstitutionSeed(
     name="Annur College of Education Kano",
@@ -584,8 +583,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Archbishop Alexander Ibezim COE, Anambra",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Anambra",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Anambra"
     ),
     InstitutionSeed(
     name="Assanusiya COE, Odeomu, Osun",
@@ -616,7 +614,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Imo",
-    website="https://[imsced.edu.ng](https://imsced.edu.ng)"
+    website="https://imsced.edu.ng"
     ),
     InstitutionSeed(
     name="Best Legacy COE Ogbomoso",
@@ -647,7 +645,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kaduna",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Calvin Foundation COE",
@@ -671,21 +669,20 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="City College of Education, Mararaba",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="FCT Abuja"
+    state="FCT"
     ),
     InstitutionSeed(
     name="Climax College of Education, Bauchi",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Bauchi",
-    website="https://[NULL](https://NULL)"
+    state="Bauchi"
     ),
     InstitutionSeed(
     name="COASTLINE COLLEGE OF EDUCATION",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[coastlinecollege.edu.ng](https://coastlinecollege.edu.ng)"
+    website="https://coastlinecollege.edu.ng"
     ),
     InstitutionSeed(
     name="COE, Moro, Ife-North",
@@ -698,35 +695,34 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Lagos",
-    website="https://[www.taecoed.edu.ng](https://www.taecoed.edu.ng)"
+    website="https://www.taecoed.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education (Technical), Dass",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Bauchi",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Bauchi"
     ),
     InstitutionSeed(
     name="College of Education Akwanga",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Nasarawa",
-    website="https://[coeakwanga.edu.ng](https://coeakwanga.edu.ng)"
+    website="https://coeakwanga.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education and Entrepreneurship Studies, Lessel",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Benue",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education and Legal Studies, Nguru",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Yobe",
-    website="https://[coelsnguru.edu.ng](https://coelsnguru.edu.ng)"
+    website="https://coelsnguru.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education Ilemona",
@@ -744,8 +740,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="College of Education llorin",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Kwara",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Kwara"
     ),
     InstitutionSeed(
     name="College of Education Oju",
@@ -782,34 +777,34 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Bauchi",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="College of Education, Gindiri",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Plateau",
-    website="https://[coeg.edu.ng](https://coeg.edu.ng)"
+    website="https://coeg.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education, Hong",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Yola"
+    state="Adamawa"
     ),
     InstitutionSeed(
     name="College of Education, Ikere-Ekiti",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Ekiti",
-    website="https://[www.coeikere.edu.ng](https://www.coeikere.edu.ng)"
+    website="https://www.coeikere.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education, Ila-Orangun, Osun State",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Osun",
-    website="https://[oscoedilesa.edu.ng](https://oscoedilesa.edu.ng)"
+    website="https://oscoedilesa.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education, katsina-Ala",
@@ -828,7 +823,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Delta",
-    website="https://[www.coewarri.edu.ng](https://www.coewarri.edu.ng)"
+    website="https://www.coewarri.edu.ng"
     ),
     InstitutionSeed(
     name="College of Education, Zing",
@@ -841,7 +836,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kano",
-    website="https://[fcekano.edu.ng](https://fcekano.edu.ng)"
+    website="https://fcekano.edu.ng"
     ),
     InstitutionSeed(
     name="Corner Stone College of Education, Ikeja",
@@ -865,8 +860,8 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Crescent Pearls Technical College of Education, Abuja",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="FCT Abuja",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    state="FCT",
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="CRESTFIELD COLLEGE OF EDUCATION",
@@ -909,14 +904,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Delta",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="DIAMOND COLLEGE OF EDUCATION, ABA",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Abia",
-    website="https://[www.dce.edu.ng](https://www.dce.edu.ng)"
+    website="https://www.dce.edu.ng"
     ),
     InstitutionSeed(
     name="Doviana COE, Gboko",
@@ -929,7 +924,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Imo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Ebenezer College of Education Amangwu",
@@ -960,14 +955,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Plateau",
-    website="https://[www.jets.edu.ng](https://www.jets.edu.ng)"
+    website="https://www.jets.edu.ng"
     ),
     InstitutionSeed(
     name="Edexcel College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Benue",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Edo State College of Education, Igueben",
@@ -1004,14 +999,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Bauchi",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Emmanuel Ebije Ikwue College Of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Benue",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Enugu State Coll. of Education (T), Enugu",
@@ -1023,22 +1018,22 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="FCT College of Education, Zuba",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="FCT Abuja",
-    website="https://[fctcoezuba.com.ng](https://fctcoezuba.com.ng)"
+    state="FCT",
+    website="https://fctcoezuba.com.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (FCE) Gwoza",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Borno",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (Special), Oyo",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Oyo",
-    website="https://[www.fceoyo.edu.ng](https://www.fceoyo.edu.ng)"
+    website="https://www.fceoyo.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (T), ISU Ebonyi State",
@@ -1051,21 +1046,21 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Anambra",
-    website="https://[www.fcetumunze.edu.ng](https://www.fcetumunze.edu.ng)"
+    website="https://www.fcetumunze.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (Tech), Potiskum",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Yobe",
-    website="https://[fcetpotiskum.edu.ng](https://fcetpotiskum.edu.ng)"
+    website="https://fcetpotiskum.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (Technical) in Yauri",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Kebbi",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (Technical), Akoka",
@@ -1084,7 +1079,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Kano",
-    website="https://[www.fcetbichi.edu.ng](https://www.fcetbichi.edu.ng)"
+    website="https://www.fcetbichi.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education (Technical), Gombe",
@@ -1103,7 +1098,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Rivers",
-    website="https://[www.infor@fcetomoku.edu.com](https://www.infor@fcetomoku.edu.com)"
+    website="https://www.infor@fcetomoku.edu.com"
     ),
     InstitutionSeed(
     name="Federal College of Education Bauchi",
@@ -1121,22 +1116,21 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Federal College of Education Ilawe-Ekiti",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
-    state="Ekiti",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Ekiti"
     ),
     InstitutionSeed(
     name="Federal College of Education Ofeme-Ohuhu",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Abia",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education Osun",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Osun",
-    website="https://[www.fceiwo.edu.ng](https://www.fceiwo.edu.ng)"
+    website="https://www.fceiwo.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education Sokoto",
@@ -1149,7 +1143,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Ogun",
-    website="https://[www.fce.abeokuta.edu.ng](https://www.fce.abeokuta.edu.ng)"
+    website="https://www.fce.abeokuta.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education, Eha-Amufu",
@@ -1162,7 +1156,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Akwa Ibom",
-    website="https://[www.none.com](https://www.none.com)"
+    website="https://www.none.com"
     ),
     InstitutionSeed(
     name="Federal College of Education, Katsina",
@@ -1175,7 +1169,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Cross River",
-    website="https://[www.fceobudu.edu.ng](https://www.fceobudu.edu.ng)"
+    website="https://www.fceobudu.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education, Odugbo, Benue State",
@@ -1188,42 +1182,42 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Kogi",
-    website="https://[www.fceokene.edu.ng](https://www.fceokene.edu.ng)"
+    website="https://www.fceokene.edu.ng"
     ),
     InstitutionSeed(
     name="Federal College of Education, Yola",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Adamawa",
-    website="https://[www.fceyolanigeria.org](https://www.fceyolanigeria.org)"
+    website="https://www.fceyolanigeria.org"
     ),
     InstitutionSeed(
     name="Federal College Of Education(Technical), Keana",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.FEDERAL,
     state="Nasarawa",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="FESTMED COLLEGE OF EDUCATION, ONDO STATE",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[www.coea-edu.com](https://www.coea-edu.com)"
+    website="https://www.coea-edu.com"
     ),
     InstitutionSeed(
     name="First De-Wise College of Education, Ilorin",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Folrac Fortified College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[ffcoe.edu.ng](https://ffcoe.edu.ng)"
+    website="https://ffcoe.edu.ng"
     ),
     InstitutionSeed(
     name="Gand-Plus College of Education",
@@ -1284,7 +1278,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Nasarawa",
-    website="https://[Not Available](https://Not%20Available)"
+    website="https://Not Available"
     ),
     InstitutionSeed(
     name="His Grace College of Education, Ilorin",
@@ -1302,14 +1296,13 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Ife College of Education Omala",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="kogi"
+    state="Kogi"
     ),
     InstitutionSeed(
     name="Ikeduru College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Imo",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Imo"
     ),
     InstitutionSeed(
     name="Imam Hamzat COE, Ilorin",
@@ -1340,7 +1333,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Plateau",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Isa Kaita College of Education, Dutsin-Ma",
@@ -1359,7 +1352,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Yobe",
-    website="https://[Not Available](https://Not%20Available)"
+    website="https://Not Available"
     ),
     InstitutionSeed(
     name="JIBWIS COE, Jama’are",
@@ -1371,8 +1364,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="JIBWIS COE, Jega, Kebbi",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Kebbi",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Kebbi"
     ),
     InstitutionSeed(
     name="Jibwis COE, Zuru, Kebbi State",
@@ -1409,27 +1401,27 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Jigawa",
-    website="https://[www.jscilsringim.edu.ng](https://www.jscilsringim.edu.ng)"
+    website="https://www.jscilsringim.edu.ng"
     ),
     InstitutionSeed(
     name="Jigawa State College of Education, Gumel",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Jigawa",
-    website="https://[jscoeg.edu.ng](https://jscoeg.edu.ng)"
+    website="https://jscoeg.edu.ng"
     ),
     InstitutionSeed(
     name="Jigawa State Polytechnic",
     institution_type=InstitutionType.POLYTECHNIC,
     type=OwnershipType.STATE,
-    state="Jigwa"
+    state="Jigawa"
     ),
     InstitutionSeed(
     name="Job College of Education, Ila-Orangun",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Osun",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Jornato College of Education",
@@ -1453,8 +1445,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Kano State College of Education and Preliminary Studies (KASCEPTS)",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Kano",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Kano"
     ),
     InstitutionSeed(
     name="Kano State Polytechnic",
@@ -1466,8 +1457,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Kashim Ibrahim College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Borno",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Borno"
     ),
     InstitutionSeed(
     name="Kazaure College of Education",
@@ -1479,15 +1469,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Kebbi State Polytechnic",
     institution_type=InstitutionType.POLYTECHNIC,
     type=OwnershipType.STATE,
-    state="Kebbi",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Kebbi"
     ),
     InstitutionSeed(
     name="Kinsey College Of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Kogi East College of Education",
@@ -1500,7 +1489,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Kogi",
-    website="https://[www.kscoeankpa.edu.ng](https://www.kscoeankpa.edu.ng)"
+    website="https://www.kscoeankpa.edu.ng"
     ),
     InstitutionSeed(
     name="Kogi State College of Education, Kabba",
@@ -1513,14 +1502,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Gombe",
-    website="https://[non.edu.ng](https://non.edu.ng)"
+    website="https://non.edu.ng"
     ),
     InstitutionSeed(
     name="Kwara State College of Education (Technical), Lafiagi",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Kwara",
-    website="https://[https://www.kwacoet.edu.ng](https://https://www.kwacoet.edu.ng)"
+    website="https://https://www.kwacoet.edu.ng"
     ),
     InstitutionSeed(
     name="Kwararafa COE, Otukpo",
@@ -1533,14 +1522,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Taraba",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Lasting Glory College of Education, Erunmu Egbeda",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Lessel COE Gboko",
@@ -1559,7 +1548,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kano",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="MCF COE Agbarha-Otor, Delta",
@@ -1608,7 +1597,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Mus'ab Bn Umair College of Education Bajoga",
@@ -1626,8 +1615,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="National Institute for Nigerian Languages",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Abia",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Abia"
     ),
     InstitutionSeed(
     name="National Teachers Institute(NTI)",
@@ -1640,14 +1628,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Niger",
-    website="https://[www.coeminna.edu.ng](https://www.coeminna.edu.ng)"
+    website="https://www.coeminna.edu.ng"
     ),
     InstitutionSeed(
     name="Nigerian Army College of Education (NACOE), Ilorin",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Kwara",
-    website="https://[nacoe.edu.ng](https://nacoe.edu.ng)"
+    website="https://nacoe.edu.ng"
     ),
     InstitutionSeed(
     name="Nosakhare COE, Benin City",
@@ -1660,14 +1648,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.POLYTECHNIC,
     type=OwnershipType.STATE,
     state="Kaduna",
-    website="https://[nubapoly.edu.ng](https://nubapoly.edu.ng)"
+    website="https://nubapoly.edu.ng"
     ),
     InstitutionSeed(
     name="Nwafor Orizu College of Education, Nsugbe",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Anambra",
-    website="https://[nocen.edu.ng](https://nocen.edu.ng)"
+    website="https://nocen.edu.ng"
     ),
     InstitutionSeed(
     name="Olekamba College of Education",
@@ -1692,14 +1680,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ekiti",
-    website="https://[osanekiticoe.com](https://osanekiticoe.com)"
+    website="https://osanekiticoe.com"
     ),
     InstitutionSeed(
     name="Osi College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Osisa Tech. College of Education, Enugu",
@@ -1717,21 +1705,21 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Owu College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Ogu"
+    state="Nasarawa"
     ),
     InstitutionSeed(
     name="Oyo State College of Education, Lanlate",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Oyo",
-    website="https://[oyscoel.edu.ng](https://oyscoel.edu.ng)"
+    website="https://oyscoel.edu.ng"
     ),
     InstitutionSeed(
     name="Pan Africa Entrepreneurship and Vocational College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Lagos",
-    website="https://[panafricaninstitute.org](https://panafricaninstitute.org)"
+    website="https://panafricaninstitute.org"
     ),
     InstitutionSeed(
     name="PAN African COE Offa",
@@ -1750,7 +1738,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Enugu",
-    website="https://[www.peaceland.edu,ng](https://www.peaceland.edu,ng)"
+    website="https://www.peaceland.edu,ng"
     ),
     InstitutionSeed(
     name="Peacock College of Education Jalingo",
@@ -1763,34 +1751,34 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Petriot College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Piaget College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ogun",
-    website="https://[Not Available](https://Not%20Available)"
+    website="https://Not Available"
     ),
     InstitutionSeed(
     name="Pineville College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Plateau State Polytechnic",
     institution_type=InstitutionType.POLYTECHNIC,
     type=OwnershipType.STATE,
-    state="Plataeu"
+    state="Plateau"
     ),
     InstitutionSeed(
     name="Premier COE, Osun",
@@ -1803,14 +1791,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Imo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Providence International College of Education, Ibadan",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Ramat Polytechnic",
@@ -1847,7 +1835,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kano",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Sa'adatu Rimi College of Education, Kumbotso, Kano",
@@ -1859,7 +1847,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Sam Ale College of Education",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="FCT Abuja"
+    state="FCT"
     ),
     InstitutionSeed(
     name="Sarkin Yama Community College of Education",
@@ -1872,7 +1860,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[sharifatcoeils.edu.ng](https://sharifatcoeils.edu.ng)"
+    website="https://sharifatcoeils.edu.ng"
     ),
     InstitutionSeed(
     name="Shehu Shagari College of Education, Sokoto",
@@ -1885,7 +1873,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Ogun",
-    website="https://[www.tasce.edu.ng](https://www.tasce.edu.ng)"
+    website="https://www.tasce.edu.ng"
     ),
     InstitutionSeed(
     name="Sinai COE & Ent. Studies Gboko, Benue",
@@ -1922,14 +1910,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kwara",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="Tamic COE, Lagos",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Lagos",
-    website="https://[NON.EDU.NG](https://NON.EDU.NG)"
+    website="https://NON.EDU.NG"
     ),
     InstitutionSeed(
     name="TCNN College of Education, Bukuru",
@@ -1942,7 +1930,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Oyo",
-    website="https://[coediseyin.edukate.ng](https://coediseyin.edukate.ng)"
+    website="https://coediseyin.edukate.ng"
     ),
     InstitutionSeed(
     name="The College of Education, Nsukka",
@@ -1955,7 +1943,7 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[SomethingEdu.ng](https://SomethingEdu.ng)"
+    website="https://SomethingEdu.ng"
     ),
     InstitutionSeed(
     name="The Polytechnic Iree, Osun State",
@@ -1974,14 +1962,13 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Delta",
-    website="https://[tonygerewacoe.com.ng](https://tonygerewacoe.com.ng)"
+    website="https://tonygerewacoe.com.ng"
     ),
     InstitutionSeed(
     name="Top Sprout Coe, Ilorin",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
-    state="Kwara",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Kwara"
     ),
     InstitutionSeed(
     name="Top-Most COE, Ipaja-Agbado",
@@ -2017,36 +2004,35 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Umar Suleiman College of Education Gashua",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Yobe",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Yobe"
     ),
     InstitutionSeed(
     name="Unity College of Education, Aukpa Adoka, Benue",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Benue",
-    website="https://[-](https://-)"
+    website="https://-"
     ),
     InstitutionSeed(
     name="Upland College of Education, Science and Technology",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ondo",
-    website="https://[upland.edu.ng](https://upland.edu.ng)"
+    website="https://upland.edu.ng"
     ),
     InstitutionSeed(
     name="Victory Belt College of Education,Iyale",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Kogi",
-    website="https://[victorybeltintlminitries.com/college-of-education/](https://victorybeltintlminitries.com/college-of-education/)"
+    website="https://victorybeltintlminitries.com/college-of-education/"
     ),
     InstitutionSeed(
     name="WATERSIDE COLLEGE OF EDUCATION",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.PRIVATE,
     state="Ogun",
-    website="https://[nodomain.edu.ng](https://nodomain.edu.ng)"
+    website="https://nodomain.edu.ng"
     ),
     InstitutionSeed(
     name="Waziri Umaru Federal Polytechnic",
@@ -2064,15 +2050,14 @@ ALL_INSTITUTIONS: list[InstitutionSeed] = [
     name="Yusuf Bala Usman CoE and Legal Studies, Daura",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
-    state="Katsina",
-    website="https://[none.edu.ng](https://none.edu.ng)"
+    state="Katsina"
     ),
     InstitutionSeed(
     name="Yusuf Maitama Sule COE and Lege Studeis, Ghari",
     institution_type=InstitutionType.COLLEGE_OF_EDUCATION,
     type=OwnershipType.STATE,
     state="Kano",
-    website="https://[yumsceas.com.ng](https://yumsceas.com.ng)"
+    website="https://yumsceas.com.ng"
     ),
     InstitutionSeed(
     name="Zamfara State College of Education, Maru",

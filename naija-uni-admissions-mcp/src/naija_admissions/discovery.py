@@ -257,16 +257,56 @@ class NUCConnector:
 
 class NBTEConnector:
     async def discover(self) -> list[DiscoveredInstitution]:
-        for url in [NBTE_URL, NBTE_FALLBACK_URL]:
+        candidates = [
+            (NBTE_URL, "federal"),
+            (NBTE_FALLBACK_URL, "federal"),
+            ("https://net.nbte.gov.ng/polytechnics", "federal"),
+            ("https://net.nbte.gov.ng/private-polytechnics", "private"),
+            ("https://net.nbte.gov.ng/state-polytechnics", "state"),
+        ]
+        insts: list[DiscoveredInstitution] = []
+        for url, ownership in candidates:
             md = await _fetch_markdown(url)
-            if md:
-                break
-        else:
-            logger.warning("NBTE: both domains unreachable. Returning empty list.")
-            return []
+            if not md:
+                logger.warning(f"NBTE: failed to fetch {url}")
+                continue
+            insts.extend(_parse_nbte_listing(md, ownership, url))
+        if not insts:
+            logger.warning("NBTE: no institutions parsed from any source")
+        return insts
 
-        logger.info("NBTE: site reachable but parser not yet implemented (site structure unknown).")
-        return []
+
+_NBTE_ROW_RE = re.compile(
+    r"\|\s*\d+\s*\|\s*([A-Z][^|]+?)\s*\|\s*([A-Za-z\s]+?)\s*\|\s*([A-Za-z\s]+?)\s*\|",
+    re.MULTILINE,
+)
+
+
+def _parse_nbte_listing(markdown: str, ownership: str, source_url: str) -> list[DiscoveredInstitution]:
+    rows = []
+    for m in _NBTE_ROW_RE.finditer(markdown):
+        name = m.group(1).strip().rstrip(",")
+        state = m.group(2).strip() if m.group(2).strip().lower() != "state" else None
+        own = m.group(3).strip().lower()
+        if "federal" in own:
+            own = "federal"
+        elif "state" in own:
+            own = "state"
+        elif "private" in own:
+            own = "private"
+        else:
+            own = ownership
+        if not name or name.lower() in ("name", "s/n", "institution"):
+            continue
+        rows.append(DiscoveredInstitution(
+            name=name,
+            institution_type="polytechnic",
+            ownership_type=own,
+            state=state,
+            accreditation_body="NBTE",
+            source_url=source_url,
+        ))
+    return rows
 
 
 class NCCEConnector:
@@ -332,8 +372,59 @@ class NMCNConnector:
 
 class JAMBConnector:
     async def discover(self) -> list[DiscoveredInstitution]:
-        logger.info("JAMB: IBASS portal requires authentication. Skipping automated discovery.")
-        return []
+        """JAMB public sources (no auth required).
+
+        - Brochure page at https://www.jamb.gov.ng/brochure/
+        - Approved institutions index at https://www.jamb.gov.ng/institutions/
+        """
+        insts: list[DiscoveredInstitution] = []
+        brochure_urls = [
+            "https://www.jamb.gov.ng/brochure/",
+            "https://www.jamb.gov.ng/institutions/",
+            "https://www.jamb.gov.ng/approved-institutions/",
+        ]
+        for url in brochure_urls:
+            md = await _fetch_markdown(url)
+            if not md:
+                logger.warning(f"JAMB: failed to fetch {url}")
+                continue
+            insts.extend(_parse_jamb_listing(md, url))
+        if not insts:
+            logger.info("JAMB: no institutions parsed from public sources. IBASS portal remains auth-only.")
+        return insts
+
+
+_JAMB_INSTITUTION_RE = re.compile(
+    r"(?:^|\n)\s*(?:[-*]\s*)?((?:Federal|State|Private|Polytechnic|College|University)[^\n]{5,150})",
+    re.MULTILINE | re.IGNORECASE,
+)
+
+
+def _parse_jamb_listing(markdown: str, source_url: str) -> list[DiscoveredInstitution]:
+    rows = []
+    for m in _JAMB_INSTITUTION_RE.finditer(markdown):
+        line = m.group(1).strip().rstrip(",")
+        if not line or len(line) < 8:
+            continue
+        own = "federal"
+        if "state" in line.lower():
+            own = "state"
+        elif "private" in line.lower():
+            own = "private"
+        if "polytechnic" in line.lower():
+            inst_type = "polytechnic"
+        elif "college of education" in line.lower():
+            inst_type = "college_of_education"
+        else:
+            inst_type = "university"
+        rows.append(DiscoveredInstitution(
+            name=line,
+            institution_type=inst_type,
+            ownership_type=own,
+            accreditation_body="JAMB",
+            source_url=source_url,
+        ))
+    return rows
 
 
 def _dedupe(insts: list[DiscoveredInstitution]) -> list[DiscoveredInstitution]:
