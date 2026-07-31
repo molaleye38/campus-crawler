@@ -1,0 +1,11 @@
+
+-- ============================================================================
+-- STORAGE BUCKET SETUP (run separately in Supabase Dashboard or via API)
+-- ============================================================================
+-- Create these buckets in Supabase Storage:
+-- 1. 'crawl-assets' (public: false) - for HTML, PDF, screenshots, markdown
+-- 2. 'institution-assets' (public: true) - for logos, public documents
+-- 
+-- RLS policies for storage:
+-- INSERT: auth.role() = 'service_role'
+-- SELECT: public read for 'institution-assets', service_role for 'crawl-assets'
