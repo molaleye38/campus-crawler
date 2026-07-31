@@ -18,6 +18,9 @@ state.json schema:
 from __future__ import annotations
 
 import json
+import os
+import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -37,24 +40,91 @@ def default_state() -> dict[str, Any]:
     }
 
 
+def _acquire_lock(p: Path) -> int | None:
+    """Acquire exclusive file lock (cross-platform). Returns fd or None."""
+    lock_path = p.with_suffix(p.suffix + ".lock")
+    try:
+        fd = os.open(str(lock_path), os.O_CREAT | os.O_RDWR, 0o666)
+        if sys.platform == "win32":
+            import msvcrt
+            try:
+                msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+            except OSError:
+                os.close(fd)
+                return None
+        else:
+            import fcntl
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX)
+            except OSError:
+                os.close(fd)
+                return None
+        return fd
+    except OSError:
+        return None
+
+
+def _release_lock(fd: int | None) -> None:
+    """Release the lock acquired by _acquire_lock."""
+    if fd is None:
+        return
+    try:
+        if sys.platform == "win32":
+            import msvcrt
+            try:
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+            except OSError:
+                pass
+        else:
+            import fcntl
+            try:
+                fcntl.flock(fd, fcntl.LOCK_UN)
+            except OSError:
+                pass
+    finally:
+        os.close(fd)
+
+
+def state_save(path: str | Path, state: dict[str, Any]) -> None:
+    """Atomic save: write to temp file, then rename. Acquires cross-platform lock."""
+    state["updated_at"] = now_iso()
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    fd = _acquire_lock(p)
+    try:
+        content = json.dumps(state, indent=2)
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=str(p.parent),
+            prefix=".state_",
+            suffix=".tmp",
+            delete=False,
+        ) as f:
+            tmp = Path(f.name)
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        tmp.replace(p)
+    finally:
+        _release_lock(fd)
+
+
 def state_load(path: str | Path) -> dict[str, Any]:
     p = Path(path)
     if not p.exists():
         return default_state()
+    fd = _acquire_lock(p)
     try:
-        data = json.loads(p.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return default_state()
         for k in ("completed", "failed", "quota", "scrape_runs"):
             data.setdefault(k, {} if k != "scrape_runs" else [])
         return data
-    except Exception:
-        return default_state()
-
-
-def state_save(path: str | Path, state: dict[str, Any]) -> None:
-    state["updated_at"] = now_iso()
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    finally:
+        _release_lock(fd)
 
 
 def mark_completed(state: dict[str, Any], name: str, institution_type: str, type_: str) -> None:

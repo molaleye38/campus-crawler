@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import httpx
+
 try:
     from dotenv import load_dotenv
     project_root = Path(__file__).resolve().parent.parent.parent
@@ -91,7 +93,7 @@ async def run_with_retry(coro_factory, max_retries: int = 3, base_delay: float =
     for attempt in range(max_retries):
         try:
             return await coro_factory()
-        except (TimeoutError, APIError) as e:
+        except (TimeoutError, APIError, httpx.ConnectError, httpx.ReadError, httpx.ConnectTimeout, httpx.ReadTimeout) as e:
             last_exc = e
             if attempt < max_retries - 1:
                 delay = base_delay * (2 ** attempt)

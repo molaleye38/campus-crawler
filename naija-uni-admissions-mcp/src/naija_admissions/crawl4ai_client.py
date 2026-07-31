@@ -141,6 +141,7 @@ class Crawl4AIClient:
         )
         self._crawler: AsyncWebCrawler | None = None
         self._last_search_at: float = 0.0
+        self._circuit_open_until: float | None = None
 
     async def __aenter__(self) -> Crawl4AIClient:
         await self.start()
@@ -173,16 +174,27 @@ class Crawl4AIClient:
         self._last_search_at = time.monotonic()
 
     async def _ddg_post(self, query: str) -> httpx.Response:
+        if self._circuit_open_until and time.monotonic() < self._circuit_open_until:
+            wait = self._circuit_open_until - time.monotonic()
+            safe_log("ddg_circuit_open", wait_sec=round(wait, 1))
+            raise CrawlError(f"DDG circuit breaker open for {wait:.0f}s")
+
         last_exc: Exception | None = None
+        consecutive_rate_limits = 0
         for attempt in range(_MAX_RETRIES):
             try:
                 self._http.headers.update(_random_headers())
                 r = await self._http.post(_DDG_HTML_URL, data={"q": query})
                 if r.status_code == 429:
+                    consecutive_rate_limits += 1
                     wait = min(_BACKOFF_CAP_SEC, _BASE_BACKOFF_SEC * (2 ** attempt))
                     wait += random.uniform(0, 2.0)
                     safe_log("ddg_rate_limited", query=query, attempt=attempt + 1, wait_sec=round(wait, 1))
                     await asyncio.sleep(wait)
+                    if consecutive_rate_limits >= 3:
+                        self._circuit_open_until = time.monotonic() + 300.0
+                        safe_log("ddg_circuit_breaker_tripped", duration_sec=300)
+                        raise CrawlError("DDG circuit breaker tripped after 3 consecutive 429s")
                     continue
                 if r.status_code in (403, 503):
                     wait = min(_BACKOFF_CAP_SEC, _BASE_BACKOFF_SEC * (2 ** attempt))
@@ -190,6 +202,7 @@ class Crawl4AIClient:
                     safe_log("ddg_blocked", query=query, status=r.status_code, attempt=attempt + 1, wait_sec=round(wait, 1))
                     await asyncio.sleep(wait)
                     continue
+                self._circuit_open_until = None
                 return r
             except (httpx.ConnectError, httpx.ReadError, httpx.WriteTimeout) as e:
                 last_exc = e
