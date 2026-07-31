@@ -28,6 +28,10 @@ from .website_mapper import (
     filter_urls_for_scraping,
     map_institution_website,
 )
+try:
+    from .storage import store_crawl_artifacts
+except ImportError:
+    store_crawl_artifacts = None
 
 SUPABASE_ENABLED = True
 AI_EXTRACTION_ENABLED = False  # Toggle for AI vs regex-only mode
@@ -462,5 +466,21 @@ async def scrape_one(
                 pass
 
     inst.sources = merge_sources(sources, [])
+    
+    # Store crawl artifacts in Supabase Storage (Sprint A — wired)
+    if store_crawl_artifacts and SUPABASE_ENABLED:
+        try:
+            session_str = (getattr(seed, 'academic_session', None) or '2025/2026')
+            artifacts = store_crawl_artifacts(
+                institution_name=seed.name,
+                academic_session=session_str,
+                source_url=sources[0].url if sources else (seed.website or ''),
+                html_content=raw_chunks[0].encode('utf-8') if raw_chunks else None,
+                markdown_content=combined.encode('utf-8'),
+            )
+            safe_log("storage_artifacts_stored", name=seed.name, artifacts=list(artifacts.keys()))
+        except Exception as e:
+            safe_log("storage_artifacts_failed", name=seed.name, error=str(e))
+    
     inst.compute_confidence()
     return inst
