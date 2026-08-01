@@ -1,0 +1,136 @@
+name: Crawl Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_institutions:
+        description: "Maximum number of institutions to crawl"
+        required: true
+        type: number
+        default: 50
+      institution_types:
+        description: "Comma-separated institution types (e.g. university,polytechnic,college_of_education)"
+        required: false
+        type: string
+        default: "university,polytechnic,college_of_education"
+      state:
+        description: "Optional state filter (empty for all)"
+        required: false
+        type: string
+        default: ""
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_RUN_ID: ${{ github.run_id }}
+      GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      CRAWL_TYPES: ${{ inputs.institution_types }}
+      CRAWL_MAX: ${{ inputs.max_institutions }}
+      CRAWL_STATE: ${{ inputs.state }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd naija-uni-admissions-mcp
+          uv sync
+          uv run python -m playwright install chromium
+
+      - name: Mark run as in_progress
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run python -c "
+          import asyncio, os, json
+          from naija_admissions.supabase_writer import upsert_crawl_run
+
+          inst_types = os.environ.get('CRAWL_TYPES', 'university,polytechnic,college_of_education').split(',')
+          max_inst = int(os.environ.get('CRAWL_MAX', '50'))
+          state_val = os.environ.get('CRAWL_STATE') or None
+
+          asyncio.run(upsert_crawl_run(
+              gh_run_id=int(os.environ['GH_RUN_ID']),
+              gh_run_url=os.environ['GH_RUN_URL'],
+              status='in_progress',
+              inputs_json={
+                  'max_institutions': max_inst,
+                  'institution_types': inst_types,
+                  'state': state_val or '',
+              },
+              triggered_by='workflow_dispatch',
+          ))
+          "
+
+      - name: Run crawler
+        id: crawl
+        run: |
+          set -e
+          CRAWL_ARGS="--max ${{ inputs.max_institutions }} --types ${{ inputs.institution_types }}"
+          if [ "${{ inputs.state }}" != "" ]; then
+            CRAWL_ARGS="$CRAWL_ARGS --state '${{ inputs.state }}'"
+          fi
+          cd naija-uni-admissions-mcp
+          uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt || echo "CRAWLER_FAILED=true" >> $GITHUB_ENV
+
+      - name: Compute metrics and mark success
+        if: env.CRAWLER_FAILED != 'true'
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run python -c "
+          import asyncio, os
+          from datetime import datetime
+          from naija_admissions.supabase_writer import upsert_crawl_run, get_client
+
+          async def main():
+              client = await get_client()
+              started = datetime.utcnow()
+              res = await client.table('crawl_logs').select('status,pages_crawled').gte(
+                  'crawled_at',
+                  (started - __import__('datetime').timedelta(minutes=180)).isoformat()
+              ).execute()
+              logs = res.data or []
+              metrics = {
+                  'pages_crawled': sum(int(l.get('pages_crawled') or 0) for l in logs),
+                  'institutions_scraped': len([l for l in logs if l.get('status') == 'success']),
+                  'institutions_failed': len([l for l in logs if l.get('status') == 'failed']),
+                  'credits_used': 0,
+                  'started_at': None,
+                  'ended_at': datetime.utcnow().isoformat(),
+              }
+              await upsert_crawl_run(
+                  gh_run_id=int(os.environ['GH_RUN_ID']),
+                  gh_run_url=os.environ['GH_RUN_URL'],
+                  status='success',
+                  metrics_json=metrics,
+              )
+
+          asyncio.run(main())
+          "
+
+      - name: Mark run as failure
+        if: env.CRAWLER_FAILED == 'true' || failure()
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run python -c "
+          import asyncio, os
+          from naija_admissions.supabase_writer import upsert_crawl_run
+
+          asyncio.run(upsert_crawl_run(
+              gh_run_id=int(os.environ['GH_RUN_ID']),
+              gh_run_url=os.environ['GH_RUN_URL'],
+              status='failure',
+              error_message='Crawler pipeline failed. See GH Actions logs for details.',
+          ))
+          "

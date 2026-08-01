@@ -1,0 +1,47 @@
+# Environment
+.env
+.env.local
+
+# Output data (artifacts of a scrape run)
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local scratch / throwaway scripts (underscore-prefixed)
+_crawl4ai_test.py
+_download_ui_pdf.py
+_extract_ui_pdf.py
+_gen_inst.py
+_save_ui_data.py
+_test_extraction.py
+_test_imports.py
+_test_migration.py
+_verify_kb.py
+_verify_ui_data.py
+
+# uv
+.python-version
