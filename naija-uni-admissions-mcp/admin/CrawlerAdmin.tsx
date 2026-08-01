@@ -1,27 +1,21 @@
-"""
-campuscompassapp.com admin button code — paste into your admin UI page.
-
-Requirements:
-1. Set VITE_CRAWL_API_KEY in your campuscompassapp.com .env (must match the
-   CRAWL_API_KEY secret on the Supabase Edge Function).
-2. Install: `npm install swr` for the status poller (optional).
-
-Two components:
-  - CrawlerTrigger: button + form to fire the crawl
-  - CrawlRunStatus: poll GitHub Actions status (optional, requires GITHUB_PAT)
-"""
+/**
+ * campuscompassapp.com admin components — paste into your admin UI page.
+ *
+ * Requirements:
+ * 1. Set VITE_GITHUB_PAT in your campuscompassapp.com .env (fine-grained PAT with `actions: write` scope)
+ *    - This PAT must have access to molaleye38/campus-crawler repo
+ * 2. Install: `npm install swr` for the status poller (optional)
+ *
+ * Two components:
+ *   - CrawlerTrigger: button + form to fire the crawl via GitHub API
+ *   - CrawlRunStatus: poll GitHub Actions status (optional)
+ */
 
 import { useState } from 'react';
 import useSWR from 'swr';
 
-// =============================================================================
-// Component 1: CrawlerTrigger
-// =============================================================================
-
-const SUPABASE_FN_URL =
-  'https://fhqylwughhlxumgpsvho.supabase.co/functions/v1/trigger-crawl';
-
-const CRAWL_API_KEY = import.meta.env.VITE_CRAWL_API_KEY;
+const GITHUB_API = 'https://api.github.com';
+const REPO = 'molaleye38/campus-crawler';
 
 const DEFAULT_TYPES = ['university', 'polytechnic', 'college_of_education'];
 
@@ -31,6 +25,7 @@ export function CrawlerTrigger({ onTriggered }: { onTriggered?: () => void }) {
   const [state, setState] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const toggleType = (t: string) =>
     setTypes((prev) =>
@@ -38,21 +33,50 @@ export function CrawlerTrigger({ onTriggered }: { onTriggered?: () => void }) {
     );
 
   async function handleSubmit() {
+    if (!types.length) {
+      setError('Select at least one institution type');
+      return;
+    }
     setSubmitting(true);
     setError(null);
+    setSuccess(false);
+
     try {
-      const resp = await fetch(SUPABASE_FN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': CRAWL_API_KEY,
-        },
-        body: JSON.stringify({ max, types: types.join(','), state }),
-      });
-      if (!resp.ok) {
-        throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+      const pat = import.meta.env.VITE_GITHUB_PAT;
+      if (!pat) {
+        throw new Error('Missing VITE_GITHUB_PAT in .env');
       }
+
+      const resp = await fetch(
+        `${GITHUB_API}/repos/${REPO}/dispatches`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${pat}`,
+            Accept: 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event_type: 'run-crawl',
+            client_payload: {
+              max_institutions: String(max),
+              institution_types: types.join(','),
+              state: state.trim() || '',
+            },
+          }),
+        }
+      );
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${txt}`);
+      }
+
+      setSuccess(true);
       onTriggered?.();
+
+      // Auto-clear success after 3s
+      setTimeout(() => setSuccess(false), 3000);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -109,6 +133,12 @@ export function CrawlerTrigger({ onTriggered }: { onTriggered?: () => void }) {
         {submitting ? 'Triggering…' : 'Run Crawler Now'}
       </button>
 
+      {success && (
+        <p className="mt-2 text-green-600 text-sm">
+          Crawl triggered! Check <a href={`https://github.com/${REPO}/actions`} target="_blank" rel="noreferrer" className="underline">GitHub Actions</a> for progress.
+        </p>
+      )}
+
       {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
     </div>
   );
@@ -117,23 +147,26 @@ export function CrawlerTrigger({ onTriggered }: { onTriggered?: () => void }) {
 // =============================================================================
 // Component 2: CrawlRunStatus (optional)
 // Polls GitHub Actions API for the most recent workflow run.
-// Requires VITE_GITHUB_PAT (Fine-grained PAT with `actions: read` scope).
+// Requires VITE_GITHUB_PAT (same PAT, needs `actions: read` scope).
 // =============================================================================
-
-const GITHUB_API = 'https://api.github.com';
 
 async function fetchRun(): Promise<any> {
   const pat = import.meta.env.VITE_GITHUB_PAT;
   if (!pat) return null;
-  const resp = await fetch(
-    `${GITHUB_API}/repos/molaleye38/campus-crawler/actions/runs?event=repository_dispatch&per_page=1`,
-    {
-      headers: { Authorization: `Bearer ${pat}` },
-    }
-  );
-  if (!resp.ok) return null;
-  const data = await resp.json();
-  return data.workflow_runs?.[0] ?? null;
+
+  try {
+    const resp = await fetch(
+      `${GITHUB_API}/repos/${REPO}/actions/runs?event=repository_dispatch&per_page=1`,
+      {
+        headers: { Authorization: `Bearer ${pat}` },
+      }
+    );
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.workflow_runs?.[0] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export function CrawlRunStatus() {
@@ -174,11 +207,11 @@ export function CrawlRunStatus() {
 // Example page usage:
 // =============================================================================
 //
-// import { CrawlerTrigger, CrawlRunStatus } from './CrawlerAdmin';
+// import { CrawlerTrigger, CrawlRunStatus } from './components/CrawlerAdmin';
 //
 // export function AdminPage() {
 //   return (
-//     <div className="grid grid-cols-2 gap-4 p-6">
+//     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
 //       <CrawlerTrigger />
 //       <CrawlRunStatus />
 //     </div>
