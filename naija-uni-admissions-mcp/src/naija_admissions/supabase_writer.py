@@ -43,12 +43,12 @@ async def get_client(use_service_role: bool = False) -> AsyncClient:
     return _client
 
 
-async def run_with_retry(coro, max_retries: int = 3, base_delay: float = 1.0) -> Any:
-    """Run async operation with exponential backoff retry."""
+async def run_with_retry(coro_factory, max_retries: int = 3, base_delay: float = 1.0) -> Any:
+    """Run async operation with exponential backoff retry. coro_factory should be a callable that returns a coroutine."""
     last_exc = None
     for attempt in range(max_retries):
         try:
-            return await coro
+            return await coro_factory()
         except (TimeoutError, APIError) as e:
             last_exc = e
             if attempt < max_retries - 1:
@@ -94,7 +94,7 @@ async def upsert_institution(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("institutions").upsert(data, on_conflict="name").execute()
+        lambda: client.table("institutions").upsert(data, on_conflict="name").execute()
     )
     return result.data[0] if result.data else None
 
@@ -108,7 +108,7 @@ async def upsert_faculty(
     data = {"institution_id": institution_id, "name": name}
 
     result = await run_with_retry(
-        client.table("faculties").upsert(data, on_conflict="institution_id,name").execute()
+        lambda: client.table("faculties").upsert(data, on_conflict="institution_id,name").execute()
     )
     return result.data[0] if result.data else None
 
@@ -136,7 +136,7 @@ async def upsert_program(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("programs").upsert(data, on_conflict="institution_id,name").execute()
+        lambda: client.table("programs").upsert(data, on_conflict="institution_id,name").execute()
     )
     return result.data[0] if result.data else None
 
@@ -181,7 +181,7 @@ async def upsert_admission_requirements(
     conflict_key = "institution_id,program_id" if program_id else "institution_id"
 
     result = await run_with_retry(
-        client.table("admission_requirements").upsert(data, on_conflict=conflict_key).execute()
+        lambda: client.table("admission_requirements").upsert(data, on_conflict=conflict_key).execute()
     )
     return result.data[0] if result.data else None
 
@@ -207,7 +207,7 @@ async def upsert_olevel_rules(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("olevel_rules").upsert(
+        lambda: client.table("olevel_rules").upsert(
             data, on_conflict="institution_id,program_id,subject"
         ).execute()
     )
@@ -233,7 +233,7 @@ async def upsert_utme_rules(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("utme_rules").upsert(
+        lambda: client.table("utme_rules").upsert(
             data, on_conflict="institution_id,program_id,subject"
         ).execute()
     )
@@ -263,7 +263,7 @@ async def upsert_postutme_rules(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("postutme_rules").upsert(
+        lambda: client.table("postutme_rules").upsert(
             data, on_conflict="institution_id,program_id"
         ).execute()
     )
@@ -297,7 +297,7 @@ async def upsert_departmental_cutoff(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("departmental_cutoffs").upsert(
+        lambda: client.table("departmental_cutoffs").upsert(
             data, on_conflict="institution_id,program_id,academic_session"
         ).execute()
     )
@@ -323,7 +323,7 @@ async def upsert_catchment(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("catchment").upsert(
+        lambda: client.table("catchment").upsert(
             data, on_conflict="institution_id,name,policy"
         ).execute()
     )
@@ -358,7 +358,7 @@ async def upsert_source_document(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("source_documents").upsert(
+        lambda: client.table("source_documents").upsert(
             data, on_conflict="institution_id,url,crawled_at"
         ).execute()
     )
@@ -395,7 +395,7 @@ async def log_crawl(
     }
     data = {k: v for k, v in data.items() if v is not None}
 
-    result = await run_with_retry(client.table("crawl_logs").insert(data).execute())
+    result = await run_with_retry(lambda: client.table("crawl_logs").insert(data).execute())
     return result.data[0] if result.data else None
 
 
@@ -420,7 +420,7 @@ async def store_raw_crawl(
         "status": "pending_review",
     }
 
-    result = await run_with_retry(client.table("raw_crawl_data").insert(data).execute())
+    result = await run_with_retry(lambda: client.table("raw_crawl_data").insert(data).execute())
     return result.data[0] if result.data else None
 
 
@@ -433,7 +433,7 @@ async def promote_to_validated(
     client = await get_client()
 
     raw_result = await run_with_retry(
-        client.table("raw_crawl_data").select("*").eq("id", raw_crawl_id).limit(1).execute()
+        lambda: client.table("raw_crawl_data").select("*").eq("id", raw_crawl_id).limit(1).execute()
     )
     if not raw_result.data:
         return None
@@ -452,10 +452,10 @@ async def promote_to_validated(
         "status": "approved",
     }
 
-    result = await run_with_retry(client.table("validated_data").insert(validated_data).execute())
+    result = await run_with_retry(lambda: client.table("validated_data").insert(validated_data).execute())
 
     await run_with_retry(
-        client.table("raw_crawl_data").update({
+        lambda: client.table("raw_crawl_data").update({
             "status": "validated",
             "reviewed_by": reviewer,
             "review_notes": notes,
@@ -474,7 +474,7 @@ async def reject_raw_crawl(
     """Mark raw crawl as rejected."""
     client = await get_client()
     result = await run_with_retry(
-        client.table("raw_crawl_data").update({
+        lambda: client.table("raw_crawl_data").update({
             "status": "rejected",
             "reviewed_by": reviewer,
             "review_notes": notes,
@@ -488,7 +488,7 @@ async def get_pending_validations(limit: int = 50) -> list[dict]:
     """Get raw crawl data pending review."""
     client = await get_client()
     result = await run_with_retry(
-        client.table("raw_crawl_data")
+        lambda: client.table("raw_crawl_data")
         .select("*")
         .eq("status", "pending_review")
         .order("created_at", desc=True)
@@ -638,7 +638,7 @@ async def get_institution_by_name(name: str) -> dict | None:
     """Get institution by exact name match."""
     client = await get_client()
     result = await run_with_retry(
-        client.table("institutions").select("*").eq("name", name).limit(1).execute()
+        lambda: client.table("institutions").select("*").eq("name", name).limit(1).execute()
     )
     return result.data[0] if result.data else None
 
@@ -647,7 +647,7 @@ async def get_programs_for_institution(institution_id: str) -> list[dict]:
     """Get all programs for an institution."""
     client = await get_client()
     result = await run_with_retry(
-        client.table("programs").select("*").eq("institution_id", institution_id).execute()
+        lambda: client.table("programs").select("*").eq("institution_id", institution_id).execute()
     )
     return result.data or []
 
@@ -656,7 +656,7 @@ async def get_latest_cutoffs(institution_id: str, academic_session: str) -> list
     """Get latest cutoffs for an institution."""
     client = await get_client()
     result = await run_with_retry(
-        client.table("departmental_cutoffs")
+        lambda: client.table("departmental_cutoffs")
         .select("*")
         .eq("institution_id", institution_id)
         .eq("academic_session", academic_session)
@@ -679,7 +679,9 @@ async def get_crawl_logs(
     if status:
         query = query.eq("status", status)
 
-    result = await run_with_retry(query.execute())
+    result = await run_with_retry(
+        lambda: query.execute()
+    )
     return result.data or []
 
 
@@ -713,6 +715,6 @@ async def upsert_crawl_run(
     data = {k: v for k, v in data.items() if v is not None}
 
     result = await run_with_retry(
-        client.table("crawl_runs").upsert(data, on_conflict="gh_run_id").execute()
+        lambda: client.table("crawl_runs").upsert(data, on_conflict="gh_run_id").execute()
     )
     return result.data[0] if result.data else None
