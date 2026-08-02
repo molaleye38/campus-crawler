@@ -74,10 +74,17 @@ def main() -> int:
         dest="sample_by_type",
         help="Don't sample evenly across types",
     )
+    parser.add_argument(
+        "--failed",
+        type=str,
+        default=None,
+        help="Comma-separated list of institution names to re-crawl (overrides type/state filters)",
+    )
 
     args = parser.parse_args()
 
     institution_types = parse_institution_types(args.types)
+    failed_institutions = [s.strip() for s in args.failed.split(",") if s.strip()] if args.failed else None
 
     try:
         result = asyncio.run(_run_scrape(
@@ -86,6 +93,7 @@ def main() -> int:
             resume_run=args.resume,
             sample_by_type=args.sample_by_type,
             force_overwrite=args.force,
+            failed_institutions=failed_institutions,
         ))
         print(json.dumps(result, indent=2, default=str))
         return 0

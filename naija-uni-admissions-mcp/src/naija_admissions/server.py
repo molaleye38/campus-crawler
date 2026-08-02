@@ -158,6 +158,7 @@ async def _run_scrape(
     resume_run: bool,
     sample_by_type: bool,
     force_overwrite: bool,
+    failed_institutions: list[str] | None = None,
 ) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     started_at = now_iso()
@@ -169,6 +170,9 @@ async def _run_scrape(
     type_enums = [InstitutionType(t) for t in institution_types] if institution_types else None
     seeds_all = filter_by_type(ALL_INSTITUTIONS, type_enums)
     pending = resume.pending_seeds(state, seeds_all, force_overwrite=force_overwrite)
+    if failed_institutions:
+        failed_set = {name.strip().lower() for name in failed_institutions if name.strip()}
+        pending = [s for s in pending if s.name.strip().lower() in failed_set]
     if max_institutions is not None:
         pending = _sample_by_type(pending, max_institutions) if sample_by_type else pending[:max_institutions]
 
