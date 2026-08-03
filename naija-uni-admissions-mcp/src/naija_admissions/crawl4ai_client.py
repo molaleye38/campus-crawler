@@ -71,11 +71,12 @@ def _random_headers() -> dict[str, str]:
     }
 
 
-_MIN_DELAY_SEC = 2.5
-_MAX_DELAY_SEC = 5.0
-_MAX_RETRIES = 4
+_MIN_DELAY_SEC = 1.5
+_MAX_DELAY_SEC = 3.0
+_MAX_RETRIES = 3
 _BASE_BACKOFF_SEC = 5.0
-_BACKOFF_CAP_SEC = 90.0
+_BACKOFF_CAP_SEC = 60.0
+_SCRAPE_TIMEOUT_SEC = 15
 
 
 _DDG_LINK_RE = re.compile(
@@ -244,16 +245,23 @@ class Crawl4AIClient:
                 h.content = md
         return hits
 
-    async def scrape(self, url: str, formats: list[str] | None = None) -> str | None:
+    async def scrape(self, url: str, formats: list[str] | None = None, timeout_sec: int = _SCRAPE_TIMEOUT_SEC) -> str | None:
         if self._crawler is None:
             await self.start()
         try:
-            result = await self._crawler.arun(
-                url=url,
-                cache_mode=CacheMode.BYPASS,
-                excluded_tags=["nav", "footer", "header", "script", "style"],
-                word_count_threshold=20,
+            task = asyncio.wait_for(
+                self._crawler.arun(
+                    url=url,
+                    cache_mode=CacheMode.BYPASS,
+                    excluded_tags=["nav", "footer", "header", "script", "style"],
+                    word_count_threshold=20,
+                ),
+                timeout=timeout_sec,
             )
+            result = await task
+        except asyncio.TimeoutError:
+            safe_log("crawl4ai_scrape_timeout", url=url, timeout_sec=timeout_sec)
+            return None
         except Exception as e:
             safe_log("crawl4ai_scrape_error", url=url, error=str(e))
             return None
