@@ -18,25 +18,37 @@ on:
         required: false
         type: string
         default: ""
+      failed_institutions:
+        description: "Comma-separated list of institution names to re-crawl (empty for normal crawl)"
+        required: false
+        type: string
+        default: ""
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       GH_RUN_ID: ${{ github.run_id }}
       GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       CRAWL_TYPES: ${{ inputs.institution_types }}
       CRAWL_MAX: ${{ inputs.max_institutions }}
       CRAWL_STATE: ${{ inputs.state }}
+      CRAWL_FAILED_INSTITUTIONS: ${{ inputs.failed_institutions }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node (for any Node-dependent actions)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
@@ -57,16 +69,21 @@ jobs:
           inst_types = os.environ.get('CRAWL_TYPES', 'university,polytechnic,college_of_education').split(',')
           max_inst = int(os.environ.get('CRAWL_MAX', '50'))
           state_val = os.environ.get('CRAWL_STATE') or None
+          failed_inst = os.environ.get('CRAWL_FAILED_INSTITUTIONS') or ''
+          inputs_json = {
+              'max_institutions': max_inst,
+              'institution_types': inst_types,
+              'state': state_val or '',
+          }
+          if failed_inst:
+              inputs_json['re_crawl_failed'] = True
+              inputs_json['failed_institutions'] = [s.strip() for s in failed_inst.split(',') if s.strip()]
 
           asyncio.run(upsert_crawl_run(
               gh_run_id=int(os.environ['GH_RUN_ID']),
               gh_run_url=os.environ['GH_RUN_URL'],
               status='in_progress',
-              inputs_json={
-                  'max_institutions': max_inst,
-                  'institution_types': inst_types,
-                  'state': state_val or '',
-              },
+              inputs_json=inputs_json,
               triggered_by='workflow_dispatch',
           ))
           "
@@ -74,12 +91,28 @@ jobs:
       - name: Run crawler
         id: crawl
         run: |
-          set -e
+          set -euo pipefail
           CRAWL_ARGS="--max ${{ inputs.max_institutions }} --types ${{ inputs.institution_types }}"
           if [ "${{ inputs.state }}" != "" ]; then
             CRAWL_ARGS="$CRAWL_ARGS --state '${{ inputs.state }}'"
           fi
-          uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt || echo "CRAWLER_FAILED=true" >> $GITHUB_ENV
+          if [ "${{ inputs.failed_institutions }}" != "" ]; then
+            CRAWL_ARGS="$CRAWL_ARGS --failed '${{ inputs.failed_institutions }}'"
+          fi
+          uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "CRAWLER_FAILED=true" >> $GITHUB_ENV
+            exit $EXIT_CODE
+          fi
+
+      - name: Upload crawl logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-output
+          path: crawl_output.txt
+          retention-days: 30
 
       - name: Compute metrics and mark success
         if: env.CRAWLER_FAILED != 'true'

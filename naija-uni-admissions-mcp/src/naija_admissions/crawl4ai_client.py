@@ -76,7 +76,8 @@ _MAX_DELAY_SEC = 3.0
 _MAX_RETRIES = 3
 _BASE_BACKOFF_SEC = 5.0
 _BACKOFF_CAP_SEC = 60.0
-_SCRAPE_TIMEOUT_SEC = 15
+_SCRAPE_TIMEOUT_SEC = 30
+_MAX_SCRAPE_RETRIES = 2
 
 
 _DDG_LINK_RE = re.compile(
@@ -248,31 +249,47 @@ class Crawl4AIClient:
     async def scrape(self, url: str, formats: list[str] | None = None, timeout_sec: int = _SCRAPE_TIMEOUT_SEC) -> str | None:
         if self._crawler is None:
             await self.start()
-        try:
-            task = asyncio.wait_for(
-                self._crawler.arun(
-                    url=url,
-                    cache_mode=CacheMode.BYPASS,
-                    excluded_tags=["nav", "footer", "header", "script", "style"],
-                    word_count_threshold=20,
-                ),
-                timeout=timeout_sec,
-            )
-            result = await task
-        except asyncio.TimeoutError:
-            safe_log("crawl4ai_scrape_timeout", url=url, timeout_sec=timeout_sec)
-            return None
-        except Exception as e:
-            safe_log("crawl4ai_scrape_error", url=url, error=str(e))
-            return None
+        
+        last_exc: Exception | None = None
+        for attempt in range(_MAX_SCRAPE_RETRIES + 1):
+            try:
+                task = asyncio.wait_for(
+                    self._crawler.arun(
+                        url=url,
+                        cache_mode=CacheMode.BYPASS,
+                        excluded_tags=["nav", "footer", "header", "script", "style"],
+                        word_count_threshold=20,
+                    ),
+                    timeout=timeout_sec,
+                )
+                result = await task
+            except asyncio.TimeoutError:
+                last_exc = asyncio.TimeoutError(f"Scrape timeout after {timeout_sec}s")
+                safe_log("crawl4ai_scrape_timeout", url=url, timeout_sec=timeout_sec, attempt=attempt + 1)
+                if attempt < _MAX_SCRAPE_RETRIES:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                return None
+            except Exception as e:
+                last_exc = e
+                safe_log("crawl4ai_scrape_error", url=url, error=str(e), attempt=attempt + 1)
+                if attempt < _MAX_SCRAPE_RETRIES:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                return None
 
-        if not result.success:
-            safe_log("crawl4ai_scrape_failed", url=url, error=result.error_message)
-            return None
+            if not result.success:
+                last_exc = Exception(result.error_message or "Unknown crawl4ai error")
+                safe_log("crawl4ai_scrape_failed", url=url, error=result.error_message, attempt=attempt + 1)
+                if attempt < _MAX_SCRAPE_RETRIES:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                return None
 
-        if self._on_credits_used:
-            await self._on_credits_used(1)
+            if self._on_credits_used:
+                await self._on_credits_used(1)
 
-        md = result.markdown or ""
-        return md if md else None
+            md = result.markdown or ""
+            return md if md else None
 
+        return None

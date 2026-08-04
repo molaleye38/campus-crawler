@@ -26,12 +26,13 @@ on:
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       GH_RUN_ID: ${{ github.run_id }}
       GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -43,6 +44,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node (for any Node-dependent actions)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
@@ -87,7 +93,7 @@ jobs:
       - name: Run crawler
         id: crawl
         run: |
-          set -e
+          set -euo pipefail
           CRAWL_ARGS="--max ${{ inputs.max_institutions }} --types ${{ inputs.institution_types }}"
           if [ "${{ inputs.state }}" != "" ]; then
             CRAWL_ARGS="$CRAWL_ARGS --state '${{ inputs.state }}'"
@@ -96,7 +102,20 @@ jobs:
             CRAWL_ARGS="$CRAWL_ARGS --failed '${{ inputs.failed_institutions }}'"
           fi
           cd naija-uni-admissions-mcp
-          uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt || echo "CRAWLER_FAILED=true" >> $GITHUB_ENV
+          uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "CRAWLER_FAILED=true" >> $GITHUB_ENV
+            exit $EXIT_CODE
+          fi
+
+      - name: Upload crawl logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-output
+          path: naija-uni-admissions-mcp/crawl_output.txt
+          retention-days: 30
 
       - name: Compute metrics and mark success
         if: env.CRAWLER_FAILED != 'true'

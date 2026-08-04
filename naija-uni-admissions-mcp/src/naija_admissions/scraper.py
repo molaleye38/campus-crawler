@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from .ai_extractor import extract_with_nvidia
@@ -27,6 +28,7 @@ from .website_mapper import (
     SiteMap,
     filter_urls_for_scraping,
     map_institution_website,
+    get_cached_content,
 )
 
 SUPABASE_ENABLED = True
@@ -363,18 +365,52 @@ async def scrape_one(
     
     safe_log("picked_urls", name=seed.name, urls=target_urls)
 
-    for url in target_urls:
-        if url in seen_urls:
-            continue
-        seen_urls.add(url)
-        await polite_delay()
+    # ===== SCRAPE TARGET URLS WITH CACHED CONTENT REUSE =====
+    raw_chunks: list[str] = []
+    sources: list[Source] = []
+    seen_urls: set[str] = set()
+    
+    # Per-institution timeout (5 minutes max)
+    INSTITUTION_TIMEOUT_SEC = 300
+    
+    async def scrape_with_timeout(url: str) -> str | None:
         try:
-            md = await client.scrape(url)
+            return await asyncio.wait_for(client.scrape(url), timeout=30.0)
+        except asyncio.TimeoutError:
+            safe_log("scrape_timeout", url=url, name=seed.name)
+            return None
+        except Exception as e:
+            safe_log("scrape_error", url=url, error=str(e), name=seed.name)
+            return None
+    
+    async def scrape_institution_with_overall_timeout() -> None:
+        for url in target_urls:
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+            await polite_delay()
+            
+            # Try cached content first
+            cached_content = None
+            if site_map:
+                cached_content = get_cached_content(site_map, url)
+            
+            if cached_content:
+                safe_log("using_cached_content", url=url, name=seed.name)
+                raw_chunks.append(cached_content)
+                sources.append(Source(url=url))
+                continue
+            
+            # Fallback to scraping
+            md = await scrape_with_timeout(url)
             if md:
                 raw_chunks.append(md)
             sources.append(Source(url=url))
-        except Exception as e:
-            safe_log("scrape_error", url=url, error=str(e), name=seed.name)
+
+    try:
+        await asyncio.wait_for(scrape_institution_with_overall_timeout(), timeout=INSTITUTION_TIMEOUT_SEC)
+    except asyncio.TimeoutError:
+        safe_log("institution_timeout", name=seed.name, timeout_sec=INSTITUTION_TIMEOUT_SEC)
 
     if not raw_chunks:
         inst.sources = sources

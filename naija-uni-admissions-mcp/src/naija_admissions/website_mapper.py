@@ -108,6 +108,7 @@ class DiscoveredURL:
     source: str = "search"  # search, sitemap, crawl, known
     depth: int = 0
     parent_url: str | None = None
+    content: str | None = None  # Cache scraped content for reuse
 
     def __hash__(self):
         return hash(self.url)
@@ -127,6 +128,7 @@ class SiteMap:
     robots_txt: str | None = None
     crawl_delay: float | None = None
     total_pages_estimated: int = 0
+    content_cache: dict[str, str] = field(default_factory=dict)  # URL -> scraped content
 
 
 # ============================================================================
@@ -413,21 +415,15 @@ class WebsiteMapper:
             await polite_delay()
     
     def _build_search_queries(self, seed: InstitutionSeed) -> list[str]:
-        """Build targeted search queries for admission pages."""
+        """Build targeted search queries for admission pages (reduced to 6 essential queries)."""
         name = seed.name
         short = _get_institution_short_name(name)
         queries = [
             f"{name} admission requirements UTME cut off mark",
             f"{name} school fees tuition 2025 2026",
             f"{name} post UTME screening form date",
-            f"{name} catchment area ELDS states",
             f"{name} courses programmes faculty department",
             f"{name} admission portal apply online",
-            f"{name} direct entry requirements A level JUPEB",
-            f"{name} aggregate formula calculation",
-            f"{name} jamb brochure courses",
-            f"{short} admission requirements",
-            f"{short} fees schedule",
             f"{short} cut off marks",
         ]
         return queries
@@ -451,6 +447,10 @@ class WebsiteMapper:
                 if not md:
                     continue
                 
+                # Cache the scraped content for reuse by scraper
+                site_map.content_cache[disc_url.url] = md
+                disc_url.content = md
+                
                 # Extract links from page
                 links = _extract_links_from_html(md, disc_url.url)
                 for link in links:
@@ -468,6 +468,7 @@ class WebsiteMapper:
                         source="crawl",
                         depth=disc_url.depth + 1,
                         parent_url=disc_url.url,
+                        content=md,  # Pass content for potential reuse
                     )
                     site_map.discovered_urls.append(new_disc)
                     crawled += 1
@@ -590,6 +591,11 @@ def filter_urls_for_scraping(
         urls.extend(cat_urls[:max_urls // len(categories) + 1])
     
     return urls[:max_urls]
+
+
+def get_cached_content(site_map: SiteMap, url: str) -> str | None:
+    """Get cached scraped content for a URL from the site map."""
+    return site_map.content_cache.get(url)
 
 
 if __name__ == "__main__":
