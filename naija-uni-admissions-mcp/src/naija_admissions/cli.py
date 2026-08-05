@@ -106,6 +106,11 @@ def main() -> int:
         choices=["console", "json"],
         help="Override LOG_FORMAT env var (default: from env or console)",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Crawl + write local JSON/CSV/SQLite, but skip Supabase upserts (preview mode)",
+    )
 
     args = parser.parse_args()
 
@@ -143,6 +148,7 @@ def main() -> int:
             failed_institutions=failed_institutions,
             crawl_run_id=args.crawl_run_id,
             concurrency=args.concurrency,
+            dry_run=args.dry_run,
         ))
         print(json.dumps(result, indent=2, default=str))
         return 0

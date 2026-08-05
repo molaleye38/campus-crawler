@@ -29,7 +29,7 @@ try:
 except ImportError:
     pass
 
-from . import budget, resume
+from . import budget, resume, validation
 from .crawl4ai_client import Crawl4AIClient
 from .institutions import ALL_INSTITUTIONS, filter_by_type, seed_counts
 from .models import Institution, InstitutionType, ScrapeResult
@@ -161,6 +161,7 @@ async def _run_scrape(
     failed_institutions: list[str] | None = None,
     crawl_run_id: str | None = None,
     concurrency: int = 2,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     started_at = now_iso()
@@ -224,8 +225,15 @@ async def _run_scrape(
                 write_json(JSON_PATH, records)
                 write_institution(conn, inst)
 
+                validation_errors = validation.validate_institution(inst)
+                blocking = validation.has_blocking_errors(validation_errors)
+                if blocking:
+                    safe_log("validation_failed", name=seed.name, errors=validation.to_dict_list(validation_errors))
+                else:
+                    safe_log("validation_ok", name=seed.name, warnings=len([e for e in validation_errors if e.severity == "warning"]))
+
                 supabase_ok = True
-                if SUPABASE_ENABLED:
+                if SUPABASE_ENABLED and not dry_run and not blocking:
                     try:
                         payload = _inst_to_supabase_payload(inst)
                         supabase_result = await upsert_full_institution(**payload, academic_session="2025/2026")
@@ -243,14 +251,16 @@ async def _run_scrape(
                         supabase_errors.append(f"{seed.name}: {e}")
                         safe_log("supabase_upsert_error", name=seed.name, error=str(e))
 
-                if supabase_ok or not SUPABASE_ENABLED:
+                if supabase_ok or not SUPABASE_ENABLED or dry_run or blocking:
                     resume.mark_completed(state, seed.name, seed.institution_type.value, seed.type.value)
                     scraped += 1
                     safe_log("scraped_ok", name=seed.name, i=i,
                              cutoff=(inst.admission_requirements.utme_cutoff_general if inst.admission_requirements else None),
                              programs=len(inst.programs),
                              fees=len(inst.fee_tiers),
-                             confidence=inst.confidence.get("overall"))
+                             confidence=inst.confidence.get("overall"),
+                             validation_errors=len(validation_errors),
+                             dry_run=dry_run)
                 else:
                     resume.mark_failed(state, seed.name, "supabase_upsert_failed")
                     failed += 1
@@ -326,6 +336,7 @@ async def _run_scrape(
         credits_used=credits_used,
         total_quota_used=budget.credits_used_this_month(state),
         quota_limit=budget.MONTHLY_LIMIT,
+        dry_run=dry_run,
     )
 
     output = result.model_dump(mode="json")
