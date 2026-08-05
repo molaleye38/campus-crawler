@@ -357,9 +357,26 @@ create table if not exists source_documents (
     unique(institution_id, url, crawled_at)
 );
 
+-- 20b. Crawl runs: top-level orchestration tracking (one row per GH Actions run)
+create table if not exists crawl_runs (
+    id uuid primary key default uuid_generate_v4(),
+    gh_run_id bigint unique not null,
+    gh_run_url text,
+    status text not null,  -- 'in_progress', 'success', 'failure', 'cancelled', 'partial'
+    inputs_json jsonb,
+    triggered_by text,
+    admin_email text,
+    metrics_json jsonb,
+    error_message text,
+    started_at timestamptz,
+    ended_at timestamptz,
+    created_at timestamptz not null default now()
+);
+
 -- 21. Crawl logs for audit trail
 create table if not exists crawl_logs (
     id uuid primary key default uuid_generate_v4(),
+    crawl_run_id uuid references crawl_runs(id) on delete set null,
     institution_id uuid references institutions(id) on delete set null,
     institution_name text,
     course_id uuid references courses(id) on delete set null,
@@ -538,6 +555,12 @@ create index if not exists idx_crawl_logs_course on crawl_logs(course_id);
 create index if not exists idx_crawl_logs_name on crawl_logs(institution_name);
 create index if not exists idx_crawl_logs_status on crawl_logs(status);
 create index if not exists idx_crawl_logs_crawled on crawl_logs(crawled_at desc);
+create index if not exists idx_crawl_logs_run on crawl_logs(crawl_run_id);
+
+-- Crawl Runs indexes
+create index if not exists idx_crawl_runs_status on crawl_runs(status);
+create index if not exists idx_crawl_runs_started on crawl_runs(started_at desc);
+create index if not exists idx_crawl_runs_gh_run on crawl_runs(gh_run_id);
 
 -- Knowledge Versions
 create index if not exists idx_kv_table_record on knowledge_versions(table_name, record_id);
@@ -579,6 +602,7 @@ alter table deadlines enable row level security;
 alter table admission_news enable row level security;
 alter table source_documents enable row level security;
 alter table crawl_logs enable row level security;
+alter table crawl_runs enable row level security;
 alter table knowledge_versions enable row level security;
 alter table raw_crawl_data enable row level security;
 alter table validated_data enable row level security;
@@ -626,6 +650,8 @@ drop policy if exists "Public read source_documents" on source_documents;
 create policy "Public read source_documents" on source_documents for select using (true);
 drop policy if exists "Public read crawl_logs" on crawl_logs;
 create policy "Public read crawl_logs" on crawl_logs for select using (true);
+drop policy if exists "Public read crawl_runs" on crawl_runs;
+create policy "Public read crawl_runs" on crawl_runs for select using (true);
 drop policy if exists "Public read knowledge_versions" on knowledge_versions;
 create policy "Public read knowledge_versions" on knowledge_versions for select using (true);
 
@@ -672,6 +698,8 @@ drop policy if exists "Service role full access source_documents" on source_docu
 create policy "Service role full access source_documents" on source_documents for all using (auth.role() = 'service_role');
 drop policy if exists "Service role full access crawl_logs" on crawl_logs;
 create policy "Service role full access crawl_logs" on crawl_logs for all using (auth.role() = 'service_role');
+drop policy if exists "Service role full access crawl_runs" on crawl_runs;
+create policy "Service role full access crawl_runs" on crawl_runs for all using (auth.role() = 'service_role');
 drop policy if exists "Service role full access knowledge_versions" on knowledge_versions;
 create policy "Service role full access knowledge_versions" on knowledge_versions for all using (auth.role() = 'service_role');
 drop policy if exists "Service role full access raw_crawl_data" on raw_crawl_data;

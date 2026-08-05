@@ -376,11 +376,13 @@ async def log_crawl(
     error_message: str | None = None,
     pages_crawled: int = 1,
     metadata: dict | None = None,
+    crawl_run_id: str | None = None,
 ) -> dict | None:
     """Log crawl attempt for audit trail."""
     client = await get_client()
 
     data = {
+        "crawl_run_id": crawl_run_id,
         "institution_id": institution_id,
         "institution_name": institution_name,
         "url": url,

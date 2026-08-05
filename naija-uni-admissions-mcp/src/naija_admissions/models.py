@@ -105,7 +105,7 @@ class ApplicationProcess(BaseModel):
 
 class Source(BaseModel):
     url: str
-    provider: str = "firecrawl"
+    provider: str = "crawl4ai"
     accessed_on: str = Field(default_factory=lambda: datetime.utcnow().date().isoformat())
 
 

@@ -547,9 +547,11 @@ async def log_crawl(
     pages_crawled: int = 1,
     metadata: dict | None = None,
     storage_paths: list[str] | None = None,
+    crawl_run_id: str | None = None,
 ) -> dict | None:
     client = await get_client(use_service_role=True)
     data = {
+        "crawl_run_id": crawl_run_id,
         "institution_id": institution_id, "institution_name": institution_name, "course_id": course_id,
         "url": url, "status": status, "confidence": confidence, "source_type": source_type,
         "academic_session": academic_session, "error_message": error_message, "pages_crawled": pages_crawled,

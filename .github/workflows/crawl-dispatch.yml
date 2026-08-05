@@ -7,7 +7,7 @@ on:
         description: "Maximum number of institutions to crawl"
         required: true
         type: number
-        default: 50
+        default: 20
       institution_types:
         description: "Comma-separated institution types (e.g. university,polytechnic,college_of_education)"
         required: false
@@ -40,18 +40,12 @@ jobs:
       CRAWL_MAX: ${{ inputs.max_institutions }}
       CRAWL_STATE: ${{ inputs.state }}
       CRAWL_FAILED_INSTITUTIONS: ${{ inputs.failed_institutions }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (for any Node-dependent actions)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
 
@@ -62,6 +56,7 @@ jobs:
           uv run python -m playwright install chromium
 
       - name: Mark run as in_progress
+        id: mark_run
         run: |
           cd naija-uni-admissions-mcp
           uv run python -c "
@@ -69,9 +64,10 @@ jobs:
           from naija_admissions.supabase_writer import upsert_crawl_run
 
           inst_types = os.environ.get('CRAWL_TYPES', 'university,polytechnic,college_of_education').split(',')
-          max_inst = int(os.environ.get('CRAWL_MAX', '50'))
+          max_inst = int(os.environ.get('CRAWL_MAX', '20'))
           state_val = os.environ.get('CRAWL_STATE') or None
           failed_inst = os.environ.get('CRAWL_FAILED_INSTITUTIONS') or ''
+          gh_run_id = int(os.environ['GH_RUN_ID'])
           inputs_json = {
               'max_institutions': max_inst,
               'institution_types': inst_types,
@@ -81,13 +77,16 @@ jobs:
               inputs_json['re_crawl_failed'] = True
               inputs_json['failed_institutions'] = [s.strip() for s in failed_inst.split(',') if s.strip()]
 
-          asyncio.run(upsert_crawl_run(
-              gh_run_id=int(os.environ['GH_RUN_ID']),
+          result = asyncio.run(upsert_crawl_run(
+              gh_run_id=gh_run_id,
               gh_run_url=os.environ['GH_RUN_URL'],
               status='in_progress',
               inputs_json=inputs_json,
               triggered_by='workflow_dispatch',
           ))
+          if result and result.get('id'):
+              with open('crawl_run_id.txt', 'w') as f:
+                  f.write(str(result['id']))
           "
 
       - name: Run crawler
@@ -102,6 +101,9 @@ jobs:
             CRAWL_ARGS="$CRAWL_ARGS --failed '${{ inputs.failed_institutions }}'"
           fi
           cd naija-uni-admissions-mcp
+          if [ -f crawl_run_id.txt ]; then
+            CRAWL_ARGS="$CRAWL_ARGS --crawl-run-id $(cat crawl_run_id.txt)"
+          fi
           uv run ck-crawl $CRAWL_ARGS 2>&1 | tee crawl_output.txt
           EXIT_CODE=${PIPESTATUS[0]}
           if [ $EXIT_CODE -ne 0 ]; then
@@ -123,15 +125,24 @@ jobs:
           cd naija-uni-admissions-mcp
           uv run python -c "
           import asyncio, os
-          from datetime import datetime
+          from datetime import datetime, timedelta
           from naija_admissions.supabase_writer import upsert_crawl_run, get_client
 
           async def main():
               client = await get_client()
+              gh_run_id = int(os.environ['GH_RUN_ID'])
+              try:
+                  with open('crawl_run_id.txt', 'r') as f:
+                      crawl_run_id = f.read().strip()
+              except Exception:
+                  crawl_run_id = None
+
               started = datetime.utcnow()
-              res = await client.table('crawl_logs').select('status,pages_crawled').gte(
+              res = await client.table('crawl_logs').select('status,pages_crawled').eq(
+                  'crawl_run_id', crawl_run_id
+              ).execute() if crawl_run_id else client.table('crawl_logs').select('status,pages_crawled').gte(
                   'crawled_at',
-                  (started - __import__('datetime').timedelta(minutes=180)).isoformat()
+                  (started - timedelta(minutes=180)).isoformat()
               ).execute()
               logs = res.data or []
               metrics = {
@@ -143,7 +154,7 @@ jobs:
                   'ended_at': datetime.utcnow().isoformat(),
               }
               await upsert_crawl_run(
-                  gh_run_id=int(os.environ['GH_RUN_ID']),
+                  gh_run_id=gh_run_id,
                   gh_run_url=os.environ['GH_RUN_URL'],
                   status='success',
                   metrics_json=metrics,

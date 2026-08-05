@@ -80,6 +80,12 @@ def main() -> int:
         default=None,
         help="Comma-separated list of institution names to re-crawl (overrides type/state filters)",
     )
+    parser.add_argument(
+        "--crawl-run-id",
+        type=str,
+        default=None,
+        help="UUID of the crawl_run record in Supabase (links crawl_logs to this run)",
+    )
 
     args = parser.parse_args()
 
@@ -94,6 +100,7 @@ def main() -> int:
             sample_by_type=args.sample_by_type,
             force_overwrite=args.force,
             failed_institutions=failed_institutions,
+            crawl_run_id=args.crawl_run_id,
         ))
         print(json.dumps(result, indent=2, default=str))
         return 0

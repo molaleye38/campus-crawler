@@ -159,6 +159,7 @@ async def _run_scrape(
     sample_by_type: bool,
     force_overwrite: bool,
     failed_institutions: list[str] | None = None,
+    crawl_run_id: str | None = None,
 ) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     started_at = now_iso()
