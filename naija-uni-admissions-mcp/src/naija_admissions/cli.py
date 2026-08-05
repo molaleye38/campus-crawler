@@ -86,6 +86,12 @@ def main() -> int:
         default=None,
         help="UUID of the crawl_run record in Supabase (links crawl_logs to this run)",
     )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=2,
+        help="Number of institutions to scrape concurrently (default: 2)",
+    )
 
     args = parser.parse_args()
 
@@ -101,6 +107,7 @@ def main() -> int:
             force_overwrite=args.force,
             failed_institutions=failed_institutions,
             crawl_run_id=args.crawl_run_id,
+            concurrency=args.concurrency,
         ))
         print(json.dumps(result, indent=2, default=str))
         return 0

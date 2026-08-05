@@ -83,6 +83,10 @@ def set_in_progress(state: dict[str, Any], name: str) -> None:
     state["in_progress"] = name
 
 
+def clear_in_progress(state: dict[str, Any]) -> None:
+    state["in_progress"] = None
+
+
 def start_scrape_run(state: dict[str, Any]) -> int:
     runs = state.setdefault("scrape_runs", [])
     run_id = len(runs)

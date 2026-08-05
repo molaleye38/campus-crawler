@@ -160,6 +160,7 @@ async def _run_scrape(
     force_overwrite: bool,
     failed_institutions: list[str] | None = None,
     crawl_run_id: str | None = None,
+    concurrency: int = 2,
 ) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     started_at = now_iso()
@@ -177,8 +178,10 @@ async def _run_scrape(
     if max_institutions is not None:
         pending = _sample_by_type(pending, max_institutions) if sample_by_type else pending[:max_institutions]
 
+    semaphore = asyncio.Semaphore(max(1, concurrency))
+
     safe_log("scrape_start", total_seeds=len(seeds_all), pending_count=len(pending),
-             supabase_enabled=SUPABASE_ENABLED)
+             supabase_enabled=SUPABASE_ENABLED, concurrency=concurrency)
 
     records: list[Institution] = _load_existing_json_as_institutions()
     records_by_name = {r.name: r for r in records}
@@ -191,46 +194,52 @@ async def _run_scrape(
     pause_reason = ""
     conn = _connect(DB_PATH)
 
-    # Track Supabase upsert results
     supabase_results: list[dict[str, Any]] = []
     supabase_errors: list[str] = []
 
     async def credit_callback(n: int) -> None:
         budget.add_credits(state, n)
 
-    try:
-        async with Crawl4AIClient(on_credits_used=credit_callback) as client:
-            for i, seed in enumerate(pending, 1):
-                if budget.should_pause(state, credits_at_start):
-                    paused = True
-                    pause_reason = "MAX_PAGES_PER_RUN limit reached. Re-invoke to continue."
-                    safe_log("quota_pause", name=seed.name)
-                    break
-                resume.set_in_progress(state, seed.name)
-                resume.state_save(STATE_PATH, state)
-                try:
-                    safe_log("scraping", i=i, name=seed.name)
-                    inst = await scrape_one(seed, client, credit_callback)
-                    records_by_name[inst.name] = inst
-                    records[:] = list(records_by_name.values())
-                    write_json(JSON_PATH, records)
-                    write_institution(conn, inst)
+    async def scrape_one_thing(i: int, seed, client: Crawl4AIClient) -> None:
+        nonlocal scraped, failed, paused, pause_reason
+        if paused:
+            return
+        if budget.should_pause(state, credits_at_start):
+            paused = True
+            pause_reason = "MAX_PAGES_PER_RUN limit reached"
+            safe_log("quota_pause", name=seed.name)
+            return
 
-                    # Supabase upsert (Phase 1-5 integration)
-                    supabase_result = None
-                    if SUPABASE_ENABLED:
-                        try:
-                            payload = _inst_to_supabase_payload(inst)
-                            supabase_result = await upsert_full_institution(**payload, academic_session="2025/2026")
-                            if supabase_result:
-                                supabase_results.append(supabase_result)
-                                safe_log("supabase_upsert_ok", name=seed.name,
-                                         inst_id=supabase_result.get("institution_id"),
-                                         programs=len(supabase_result.get("program_ids", {})))
-                        except Exception as e:
-                            supabase_errors.append(f"{seed.name}: {e}")
-                            safe_log("supabase_upsert_error", name=seed.name, error=str(e))
+        async with semaphore:
+            resume.set_in_progress(state, seed.name)
+            try:
+                safe_log("scraping", i=i, name=seed.name)
+                inst = await scrape_one(seed, client, credit_callback)
+                records_by_name[inst.name] = inst
+                records[:] = list(records_by_name.values())
+                write_json(JSON_PATH, records)
+                write_institution(conn, inst)
 
+                supabase_ok = True
+                if SUPABASE_ENABLED:
+                    try:
+                        payload = _inst_to_supabase_payload(inst)
+                        supabase_result = await upsert_full_institution(**payload, academic_session="2025/2026")
+                        if supabase_result:
+                            supabase_results.append(supabase_result)
+                            safe_log("supabase_upsert_ok", name=seed.name,
+                                     inst_id=supabase_result.get("institution_id"),
+                                     programs=len(supabase_result.get("program_ids", {})))
+                        else:
+                            supabase_ok = False
+                            supabase_errors.append(f"{seed.name}: upsert returned no data")
+                            safe_log("supabase_upsert_empty", name=seed.name)
+                    except Exception as e:
+                        supabase_ok = False
+                        supabase_errors.append(f"{seed.name}: {e}")
+                        safe_log("supabase_upsert_error", name=seed.name, error=str(e))
+
+                if supabase_ok or not SUPABASE_ENABLED:
                     resume.mark_completed(state, seed.name, seed.institution_type.value, seed.type.value)
                     scraped += 1
                     safe_log("scraped_ok", name=seed.name, i=i,
@@ -238,20 +247,33 @@ async def _run_scrape(
                              programs=len(inst.programs),
                              fees=len(inst.fee_tiers),
                              confidence=inst.confidence.get("overall"))
-
-                except Exception as e:
+                else:
+                    resume.mark_failed(state, seed.name, "supabase_upsert_failed")
                     failed += 1
-                    resume.mark_failed(state, seed.name, str(e))
-                    safe_log("scraped_failed", name=seed.name, error=str(e))
-                resume.state_save(STATE_PATH, state)
+
+            except Exception as e:
+                failed += 1
+                resume.mark_failed(state, seed.name, str(e))
+                safe_log("scraped_failed", name=seed.name, error=str(e))
+            finally:
+                resume.clear_in_progress(state)
+
+    try:
+        async with Crawl4AIClient(on_credits_used=credit_callback) as client:
+            tasks = [scrape_one_thing(i, seed, client) for i, seed in enumerate(pending, 1)]
+            if tasks:
+                await asyncio.gather(*tasks)
     finally:
+        resume.clear_in_progress(state)
+        resume.state_save(STATE_PATH, state)
         conn.commit()
-        write_institutions_csv(INSTITUTIONS_CSV, records)
-        write_programs_csv(PROGRAMS_CSV, records)
-        write_fees_csv(FEES_CSV, records)
         conn.close()
         if SUPABASE_ENABLED:
             await close_clients()
+
+    write_institutions_csv(INSTITUTIONS_CSV, records)
+    write_programs_csv(PROGRAMS_CSV, records)
+    write_fees_csv(FEES_CSV, records)
 
     credits_used = budget.credits_used_this_month(state) - credits_at_start
     ended_at = now_iso()
@@ -288,7 +310,6 @@ async def _run_scrape(
         errors=[pause_reason] if paused and pause_reason else [],
     )
 
-    # Add Supabase results to the output
     output = result.model_dump(mode="json")
     if supabase_results:
         output["supabase_upserts"] = len(supabase_results)

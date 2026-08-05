@@ -76,8 +76,10 @@ _MAX_DELAY_SEC = 3.0
 _MAX_RETRIES = 3
 _BASE_BACKOFF_SEC = 5.0
 _BACKOFF_CAP_SEC = 60.0
-_SCRAPE_TIMEOUT_SEC = 30
+_SCRAPE_TIMEOUT_SEC = 20
 _MAX_SCRAPE_RETRIES = 2
+_PAGE_LOAD_TIMEOUT_MS = 15000
+_BROWSER_RESET_EVERY = 25
 
 
 _DDG_LINK_RE = re.compile(
@@ -143,6 +145,7 @@ class Crawl4AIClient:
         )
         self._crawler: AsyncWebCrawler | None = None
         self._last_search_at: float = 0.0
+        self._scrape_count = 0
 
     async def __aenter__(self) -> Crawl4AIClient:
         await self.start()
@@ -153,8 +156,29 @@ class Crawl4AIClient:
 
     async def start(self) -> None:
         if self._crawler is None:
-            self._crawler = AsyncWebCrawler(verbose=False)
+            try:
+                from crawl4ai import BrowserConfig
+                browser_config = BrowserConfig(
+                    browser_type="chromium",
+                    headless=True,
+                    verbose=False,
+                    args=[
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage",
+                        "--disable-images",
+                        "--disable-gpu",
+                        "--disable-blink-features=AutomationControlled",
+                    ],
+                )
+                self._crawler = AsyncWebCrawler(config=browser_config)
+            except Exception:
+                self._crawler = AsyncWebCrawler(verbose=False)
             await self._crawler.__aenter__()
+
+    async def reset_browser(self) -> None:
+        await self.aclose()
+        self._scrape_count = 0
+        await self.start()
 
     async def aclose(self) -> None:
         if self._crawler is not None:
@@ -249,7 +273,10 @@ class Crawl4AIClient:
     async def scrape(self, url: str, formats: list[str] | None = None, timeout_sec: int = _SCRAPE_TIMEOUT_SEC) -> str | None:
         if self._crawler is None:
             await self.start()
-        
+
+        if self._scrape_count and self._scrape_count % _BROWSER_RESET_EVERY == 0:
+            await self.reset_browser()
+
         last_exc: Exception | None = None
         for attempt in range(_MAX_SCRAPE_RETRIES + 1):
             try:
@@ -257,12 +284,14 @@ class Crawl4AIClient:
                     self._crawler.arun(
                         url=url,
                         cache_mode=CacheMode.BYPASS,
-                        excluded_tags=["nav", "footer", "header", "script", "style"],
+                        excluded_tags=["nav", "footer", "header", "script", "style", "aside", "noscript"],
                         word_count_threshold=20,
+                        page_timeout=_PAGE_LOAD_TIMEOUT_MS,
                     ),
                     timeout=timeout_sec,
                 )
                 result = await task
+                self._scrape_count += 1
             except asyncio.TimeoutError:
                 last_exc = asyncio.TimeoutError(f"Scrape timeout after {timeout_sec}s")
                 safe_log("crawl4ai_scrape_timeout", url=url, timeout_sec=timeout_sec, attempt=attempt + 1)
