@@ -92,8 +92,43 @@ def main() -> int:
         default=2,
         help="Number of institutions to scrape concurrently (default: 2)",
     )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default=None,
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Override LOG_LEVEL env var (default: from env or INFO)",
+    )
+    parser.add_argument(
+        "--log-format",
+        type=str,
+        default=None,
+        choices=["console", "json"],
+        help="Override LOG_FORMAT env var (default: from env or console)",
+    )
 
     args = parser.parse_args()
+
+    if args.log_level:
+        os.environ["LOG_LEVEL"] = args.log_level
+    if args.log_format:
+        os.environ["LOG_FORMAT"] = args.log_format
+    try:
+        from . import utils as _utils
+        _utils.structlog.configure(
+            processors=[
+                _utils.structlog.processors.TimeStamper(fmt="iso"),
+                _utils.structlog.processors.add_log_level,
+                _utils.structlog.processors.JSONRenderer() if os.environ.get("LOG_FORMAT", "console") == "json"
+                else _utils.structlog.dev.ConsoleRenderer(),
+            ],
+            wrapper_class=_utils.structlog.make_filtering_bound_logger(
+                getattr(__import__("logging"), os.environ.get("LOG_LEVEL", "INFO"), 0)
+            ),
+            cache_logger_on_first_use=True,
+        )
+    except Exception:
+        pass
 
     institution_types = parse_institution_types(args.types)
     failed_institutions = [s.strip() for s in args.failed.split(",") if s.strip()] if args.failed else None

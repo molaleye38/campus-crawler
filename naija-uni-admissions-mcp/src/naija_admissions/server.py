@@ -166,6 +166,10 @@ async def _run_scrape(
     started_at = now_iso()
 
     state = resume.state_load(STATE_PATH)
+    recovered = resume.recover_stale_in_progress(state, max_age_min=30)
+    if recovered:
+        safe_log("stale_in_progress_recovered", name=recovered, max_age_min=30)
+        resume.state_save(STATE_PATH, state)
     ok, msg = budget.preflight(STATE_PATH)
     safe_log("preflight", ok=ok, msg=msg)
 
@@ -308,6 +312,20 @@ async def _run_scrape(
         },
         paused=paused,
         errors=[pause_reason] if paused and pause_reason else [],
+    )
+
+    safe_log(
+        "run_summary",
+        scraped=scraped,
+        failed=failed,
+        skipped=skipped,
+        duration_sec=dur,
+        supabase_upserts=len(supabase_results),
+        supabase_errors=len(supabase_errors),
+        paused=paused,
+        credits_used=credits_used,
+        total_quota_used=budget.credits_used_this_month(state),
+        quota_limit=budget.MONTHLY_LIMIT,
     )
 
     output = result.model_dump(mode="json")

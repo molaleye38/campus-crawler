@@ -54,7 +54,9 @@ def state_save(path: str | Path, state: dict[str, Any]) -> None:
     state["updated_at"] = now_iso()
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    tmp.replace(p)
 
 
 def mark_completed(state: dict[str, Any], name: str, institution_type: str, type_: str) -> None:
@@ -81,10 +83,38 @@ def mark_failed(state: dict[str, Any], name: str, error: str, max_attempts: int 
 
 def set_in_progress(state: dict[str, Any], name: str) -> None:
     state["in_progress"] = name
+    state["in_progress_at"] = now_iso()
 
 
 def clear_in_progress(state: dict[str, Any]) -> None:
     state["in_progress"] = None
+    state.pop("in_progress_at", None)
+
+
+def recover_stale_in_progress(state: dict[str, Any], max_age_min: int = 30) -> str | None:
+    """If in_progress is older than max_age_min minutes (default 30), clear it.
+
+    Returns the recovered institution name (or None if nothing was stale).
+    Useful on startup to detect killed/interrupted runs.
+    """
+    in_progress = state.get("in_progress")
+    if not in_progress:
+        return None
+    in_progress_at = state.get("in_progress_at")
+    if not in_progress_at:
+        clear_in_progress(state)
+        return in_progress
+    from datetime import datetime, timedelta, timezone
+    try:
+        ts = datetime.fromisoformat(in_progress_at.replace("Z", "+00:00"))
+    except Exception:
+        clear_in_progress(state)
+        return in_progress
+    age = datetime.now(timezone.utc) - ts
+    if age > timedelta(minutes=max_age_min):
+        clear_in_progress(state)
+        return in_progress
+    return None
 
 
 def start_scrape_run(state: dict[str, Any]) -> int:

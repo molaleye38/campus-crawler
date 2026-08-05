@@ -5,18 +5,26 @@ from __future__ import annotations
 import asyncio
 import os
 import random
+import sys
 from datetime import UTC
 from typing import Any
 
 import structlog
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+LOG_FORMAT = os.environ.get("LOG_FORMAT", "console").lower()
+
+_renderers = {
+    "console": structlog.dev.ConsoleRenderer(),
+    "json": structlog.processors.JSONRenderer(),
+}
+_renderer = _renderers.get(LOG_FORMAT, structlog.dev.ConsoleRenderer())
 
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.add_log_level,
-        structlog.dev.ConsoleRenderer(),
+        _renderer,
     ],
     wrapper_class=structlog.make_filtering_bound_logger(getattr(__import__("logging"), LOG_LEVEL, 0)),
     cache_logger_on_first_use=True,
