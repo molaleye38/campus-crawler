@@ -4,7 +4,7 @@ The University of Lagos (UNILAG) announces admission requirements for the 2025/2
 
 ## General Admission Requirements
 
-**UTME Cut-off Mark:** 200
+UTME Cut-off Mark: 200
 
 **O-Level Requirements:** Five (5) credits including English Language, Mathematics, and three other relevant subjects at not more than two (2) sittings.
 

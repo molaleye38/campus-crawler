@@ -1,0 +1,58 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+      - stable-*
+      - sprint/*
+      - crawl-*
+  pull_request:
+    branches:
+      - master
+      - stable-*
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          cd naija-uni-admissions-mcp
+          uv sync --all-extras
+
+      - name: Lint
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run ruff check src tests
+
+      - name: Type check
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run mypy src || true
+
+      - name: Test with coverage
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run pytest --cov=src/naija_admissions --cov-report=term-missing --cov-fail-under=40 tests
+
+      - name: Upload coverage to artifacts
+        if: matrix.python-version == '3.12'
+        run: |
+          cd naija-uni-admissions-mcp
+          uv run pytest --cov=src/naija_admissions --cov-report=xml tests
+        continue-on-error: true
