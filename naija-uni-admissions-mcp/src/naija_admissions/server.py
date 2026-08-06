@@ -162,6 +162,7 @@ async def _run_scrape(
     crawl_run_id: str | None = None,
     concurrency: int = 2,
     dry_run: bool = False,
+    scrapy_data_dir: str | None = None,
 ) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     started_at = now_iso()
@@ -176,6 +177,31 @@ async def _run_scrape(
 
     type_enums = [InstitutionType(t) for t in institution_types] if institution_types else None
     seeds_all = filter_by_type(ALL_INSTITUTIONS, type_enums)
+
+    # Enrich seeds with Scrapy data if available
+    if scrapy_data_dir:
+        try:
+            # Temporarily set the scrapy data directory
+            import naija_admissions.scrapy_importer as sim
+
+            from .scrapy_importer import enrich_institutions
+            original_dir = sim.SCRAPY_DATA_DIR
+            sim.SCRAPY_DATA_DIR = Path(scrapy_data_dir)
+            sim.JAMB_PROGRAMS_PATH = Path(scrapy_data_dir) / "jamb_programs.jsonl"
+            sim.JAMB_SEEDS_PATH = Path(scrapy_data_dir) / "jamb_seeds.jsonl"
+            sim.NUC_PROGRAMS_PATH = Path(scrapy_data_dir) / "nuc_programs.jsonl"
+            sim.PORTAL_ADMISSIONS_PATH = Path(scrapy_data_dir) / "portal_admissions.jsonl"
+            seeds_all = enrich_institutions(seeds_all)
+            # Restore
+            sim.SCRAPY_DATA_DIR = original_dir
+            sim.JAMB_PROGRAMS_PATH = original_dir / "jamb_programs.jsonl"
+            sim.JAMB_SEEDS_PATH = original_dir / "jamb_seeds.jsonl"
+            sim.NUC_PROGRAMS_PATH = original_dir / "nuc_programs.jsonl"
+            sim.PORTAL_ADMISSIONS_PATH = original_dir / "portal_admissions.jsonl"
+            safe_log("scrapy_enrichment_applied", total_seeds=len(seeds_all))
+        except Exception as e:
+            safe_log("scrapy_enrichment_failed", error=str(e))
+
     pending = resume.pending_seeds(state, seeds_all, force_overwrite=force_overwrite)
     if failed_institutions:
         failed_set = {name.strip().lower() for name in failed_institutions if name.strip()}

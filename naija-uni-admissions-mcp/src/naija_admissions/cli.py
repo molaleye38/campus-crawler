@@ -6,7 +6,9 @@ import argparse
 import asyncio
 import json
 import os
+import subprocess
 import sys
+from pathlib import Path
 
 try:
     from dotenv import load_dotenv
@@ -16,6 +18,38 @@ except ImportError:
 
 from .models import InstitutionType
 from .server import _run_scrape
+
+
+def _run_scrapy_spiders(spider_names: list[str] | None = None) -> tuple[int, str]:
+    """Run Scrapy spiders as subprocess (sequentially).
+
+    Returns (exit_code, output_dir) where output_dir is the data/scrapy_data path.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    scrapy_data_dir = project_root / "data" / "scrapy_data"
+    scrapy_data_dir.mkdir(parents=True, exist_ok=True)
+
+    spiders = spider_names or ["jamb_spider", "nuc_spider", "portal_spider"]
+
+    for spider in spiders:
+        print(f"[ck-crawl] Running Scrapy spider: {spider}", file=sys.stderr)
+        cmd = ["uv", "run", "scrapy", "crawl", spider]
+
+        result = subprocess.run(
+            cmd,
+            cwd=str(project_root),
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            print(f"[ck-crawl] Scrapy spider '{spider}' failed (exit {result.returncode}):", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
+            return result.returncode, str(scrapy_data_dir)
+
+        print(f"[ck-crawl] Scrapy spider '{spider}' completed", file=sys.stderr)
+
+    return 0, str(scrapy_data_dir)
 
 
 def parse_institution_types(types_str: str | None) -> list[InstitutionType] | None:
@@ -123,6 +157,22 @@ def main() -> int:
         default=None,
         help="Path for discovered_institutions.json (default: data/discovered_institutions.json)",
     )
+    parser.add_argument(
+        "--scrapy-first",
+        action="store_true",
+        help="Run Scrapy spiders first (jamb_spider, nuc_spider, portal_spider), then run Crawl4AI with enriched data",
+    )
+    parser.add_argument(
+        "--scrapy-only",
+        action="store_true",
+        help="Run only Scrapy spiders and exit (no Crawl4AI crawl)",
+    )
+    parser.add_argument(
+        "--scrapy-spiders",
+        type=str,
+        default=None,
+        help="Comma-separated list of Scrapy spiders to run (default: all three)",
+    )
 
     args = parser.parse_args()
 
@@ -150,6 +200,16 @@ def main() -> int:
     institution_types = parse_institution_types(args.types)
     failed_institutions = [s.strip() for s in args.failed.split(",") if s.strip()] if args.failed else None
 
+    scrapy_data_dir = None
+    if args.scrapy_first or args.scrapy_only:
+        spider_names = [s.strip() for s in args.scrapy_spiders.split(",")] if args.scrapy_spiders else None
+        exit_code, scrapy_data_dir = _run_scrapy_spiders(spider_names)
+        if exit_code != 0:
+            return exit_code
+        if args.scrapy_only:
+            print(json.dumps({"status": "ok", "scrapy_data_dir": scrapy_data_dir}, indent=2))
+            return 0
+
     try:
         if args.discover_only:
             from .discovery import run_discovery, write_discovery_output
@@ -170,6 +230,7 @@ def main() -> int:
             crawl_run_id=args.crawl_run_id,
             concurrency=args.concurrency,
             dry_run=args.dry_run,
+            scrapy_data_dir=scrapy_data_dir,
         ))
         print(json.dumps(result, indent=2, default=str))
         return 0
