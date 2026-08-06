@@ -45,3 +45,6 @@ _verify_ui_data.py
 
 # uv
 .python-version
+
+# Local scratch logs
+*.log

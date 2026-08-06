@@ -26,6 +26,9 @@ Optional env vars (see `.env.example`):
 - `AI_MAX_TOKENS_PER_INSTITUTION` (default `15000`) — cap AI tokens to prevent cost overruns
 - `LOG_LEVEL` (default `INFO`) — DEBUG/INFO/WARNING/ERROR
 - `LOG_FORMAT` (default `console`) — `console` or `json` for production ingestion
+- `CRON_API_KEY` — required by `ck-cron-server`. Shared secret for the POST /api/cron/crawl-kb endpoint
+- `CRON_PORT` (default `8787`) — port for the cron HTTP server
+- `CRON_HOST` (default `0.0.0.0`) — bind address for the cron HTTP server
 
 Load with `python-dotenv` (already a dependency).
 
@@ -39,6 +42,9 @@ uv run python -m playwright install chromium
 
 # Run the MCP server (used by opencode / any MCP client)
 uv run python -m naija_admissions.server
+
+# Run the cron HTTP server (external scheduled triggers; port 8787)
+uv run ck-cron-server
 
 # Lint
 uv run ruff check src
@@ -57,16 +63,23 @@ uv run python test_full_pipeline.py
 ```
 src/naija_admissions/
 ├── server.py              (MCP entry — registered tool: run_admissions_scrape)
+├── cron_server.py        (HTTP server: POST /api/cron/crawl-kb for external schedulers)
+├── cli.py                (ck-crawl CLI entry — invokes _run_scrape)
 ├── models.py              (InstitutionType enum + pydantic schema)
 ├── institutions.py        (seed lists: ~270 unis + ~150 polys + ~163 COEs)
+├── discovery.py          (NUC/NBTE/NCCE/NMCN connectors + fallback seeds)
+├── polytechnic_seed.py    (72-entry curated polytechnic fallback)
 ├── crawl4ai_client.py     (DuckDuckGo search + Crawl4AI scrape via Playwright)
 ├── budget.py              (page counter + optional MAX_PAGES_PER_RUN cap)
-├── resume.py              (state.json load/save/lock)
+├── resume.py              (state.json load/save/lock + stale recovery)
 ├── utils.py               (polite_delay, NGN->USD, structlog setup)
-├── scraper.py             (per-institution pipeline orchestration)
+├── validation.py          (12+ rules: UTME range, O-Level credits, fees, URL, dedup)
+├── scraper.py             (per-institution pipeline orchestration + AI extraction gate)
+├── ai_extractor.py        (NVIDIA Qwen NIM client — token-metered)
+├── extraction_models.py   (ExtractedKnowledge pydantic schema)
 ├── normalizer.py          (dedupe sources, unify name spellings)
 ├── supabase_client.py     (Supabase connection, upsert helpers)
-├── supabase_writer.py     (production + staging table upserts)
+├── supabase_writer.py     (production + staging table upserts + crawl_runs)
 ├── parsers/
 │   ├── requirements_parser.py  (type-aware UTME cutoff ranges)
 │   ├── fees_parser.py          (NGN->USD conversion)

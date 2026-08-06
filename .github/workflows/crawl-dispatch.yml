@@ -23,6 +23,9 @@ on:
         required: false
         type: string
         default: ""
+  schedule:
+    # Sundays 02:00 UTC = Monday 03:00 WAT (Nigeria)
+    - cron: "0 2 * * 0"
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -36,10 +39,11 @@ jobs:
     env:
       GH_RUN_ID: ${{ github.run_id }}
       GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      CRAWL_TYPES: ${{ inputs.institution_types }}
-      CRAWL_MAX: ${{ inputs.max_institutions }}
-      CRAWL_STATE: ${{ inputs.state }}
-      CRAWL_FAILED_INSTITUTIONS: ${{ inputs.failed_institutions }}
+      CRAWL_TYPES: ${{ inputs.institution_types || 'university,polytechnic,college_of_education' }}
+      CRAWL_MAX: ${{ inputs.max_institutions || 20 }}
+      CRAWL_STATE: ${{ inputs.state || '' }}
+      CRAWL_FAILED_INSTITUTIONS: ${{ inputs.failed_institutions || '' }}
+      CRAWL_TRIGGER: ${{ github.event_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,7 +86,7 @@ jobs:
               gh_run_url=os.environ['GH_RUN_URL'],
               status='in_progress',
               inputs_json=inputs_json,
-              triggered_by='workflow_dispatch',
+              triggered_by=os.environ.get('CRAWL_TRIGGER', 'workflow_dispatch'),
           ))
           if result and result.get('id'):
               with open('crawl_run_id.txt', 'w') as f:
@@ -93,12 +97,12 @@ jobs:
         id: crawl
         run: |
           set -euo pipefail
-          CRAWL_ARGS="--max ${{ inputs.max_institutions }} --types ${{ inputs.institution_types }}"
-          if [ "${{ inputs.state }}" != "" ]; then
-            CRAWL_ARGS="$CRAWL_ARGS --state '${{ inputs.state }}'"
+          CRAWL_ARGS="--max ${CRAWL_MAX} --types ${CRAWL_TYPES}"
+          if [ "${CRAWL_STATE}" != "" ]; then
+            CRAWL_ARGS="$CRAWL_ARGS --state '${CRAWL_STATE}'"
           fi
-          if [ "${{ inputs.failed_institutions }}" != "" ]; then
-            CRAWL_ARGS="$CRAWL_ARGS --failed '${{ inputs.failed_institutions }}'"
+          if [ "${CRAWL_FAILED_INSTITUTIONS}" != "" ]; then
+            CRAWL_ARGS="$CRAWL_ARGS --failed '${CRAWL_FAILED_INSTITUTIONS}'"
           fi
           cd naija-uni-admissions-mcp
           if [ -f crawl_run_id.txt ]; then
