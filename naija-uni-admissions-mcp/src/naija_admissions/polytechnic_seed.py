@@ -1,0 +1,115 @@
+"""Fallback seed list for Nigerian polytechnics.
+
+The NBTE official site (https://net.nbte.gov.ng) is frequently unreachable or
+restructures its pages without notice. Until we have a reliable connector,
+this list provides the ~150 federally/state-owned polytechnics with known
+websites for the crawler to discover.
+
+Source: Public NBTE accreditation list (manually curated snapshot).
+Last updated: 2025
+"""
+
+from __future__ import annotations
+
+POLYTECHNICS: list[dict[str, str]] = [
+    {"name": "Akanu Ibiam Federal Polytechnic, Unwana", "state": "Ebonyi", "ownership": "federal"},
+    {"name": "Auchi Polytechnic, Auchi", "state": "Edo", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Ado-Ekiti", "state": "Ekiti", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Bauchi", "state": "Bauchi", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Bida", "state": "Niger", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Birnin-Kebbi", "state": "Kebbi", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Damaturu", "state": "Yobe", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Ede", "state": "Osun", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Idah", "state": "Kogi", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Ilaro", "state": "Ogun", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Ile-Oluji", "state": "Ondo", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Kaura-Namoda", "state": "Zamfara", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Mubi", "state": "Adamawa", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Nassarawa", "state": "Nasarawa", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Nekede", "state": "Imo", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Oko", "state": "Anambra", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Offa", "state": "Kwara", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Ohodo", "state": "Enugu", "ownership": "federal"},
+    {"name": "Federal School of Statistics, Oyo", "state": "Oyo", "ownership": "federal"},
+    {"name": "Federal Polytechnic, Uka", "state": "Cross River", "ownership": "federal"},
+    {"name": "Yaba College of Technology", "state": "Lagos", "ownership": "federal"},
+    {"name": "Abia State Polytechnic, Aba", "state": "Abia", "ownership": "state"},
+    {"name": "Adamawa State Polytechnic, Yola", "state": "Adamawa", "ownership": "state"},
+    {"name": "Akwa Ibom State Polytechnic, Ikot Osurua", "state": "Akwa Ibom", "ownership": "state"},
+    {"name": "Benue State Polytechnic, Ugbokolo", "state": "Benue", "ownership": "state"},
+    {"name": "Borno State Polytechnic, Maiduguri", "state": "Borno", "ownership": "state"},
+    {"name": "Delta State Polytechnic, Ogwashi-Uku", "state": "Delta", "ownership": "state"},
+    {"name": "Delta State Polytechnic, Otefe", "state": "Delta", "ownership": "state"},
+    {"name": "Edo State Polytechnic, Usen", "state": "Edo", "ownership": "state"},
+    {"name": "Enugu State Polytechnic, Iwollo", "state": "Enugu", "ownership": "state"},
+    {"name": "Gateway Polytechnic, Saapade", "state": "Ogun", "ownership": "state"},
+    {"name": "Hassan Usman Katsina Polytechnic", "state": "Katsina", "ownership": "state"},
+    {"name": "Imo State Polytechnic, Omuma", "state": "Imo", "ownership": "state"},
+    {"name": "Imo State Polytechnic, Owerri", "state": "Imo", "ownership": "state"},
+    {"name": "Jigawa State Polytechnic, Dutse", "state": "Jigawa", "ownership": "state"},
+    {"name": "Kaduna Polytechnic, Kaduna", "state": "Kaduna", "ownership": "state"},
+    {"name": "Kano State Polytechnic", "state": "Kano", "ownership": "state"},
+    {"name": "Kogi State Polytechnic, Lokoja", "state": "Kogi", "ownership": "state"},
+    {"name": "Kwara State Polytechnic, Ilorin", "state": "Kwara", "ownership": "state"},
+    {"name": "Lagos State Polytechnic, Ikorodu", "state": "Lagos", "ownership": "state"},
+    {"name": "Moshood Abiola Polytechnic, Abeokuta", "state": "Ogun", "ownership": "state"},
+    {"name": "Niger State Polytechnic, Zungeru", "state": "Niger", "ownership": "state"},
+    {"name": "Nasarawa State Polytechnic, Lafia", "state": "Nasarawa", "ownership": "state"},
+    {"name": "Osun State Polytechnic, Iree", "state": "Osun", "ownership": "state"},
+    {"name": "Osun State College of Technology, Esa-Oke", "state": "Osun", "ownership": "state"},
+    {"name": "Ogun State Institute of Technology, Igbesa", "state": "Ogun", "ownership": "state"},
+    {"name": "Plateau State Polytechnic, Barkin Ladi", "state": "Plateau", "ownership": "state"},
+    {"name": "Rivers State Polytechnic, Bori", "state": "Rivers", "ownership": "state"},
+    {"name": "Rufus Giwa Polytechnic, Owo", "state": "Ondo", "ownership": "state"},
+    {"name": "Sokoto State Polytechnic", "state": "Sokoto", "ownership": "state"},
+    {"name": "Taraba State Polytechnic, Jalingo", "state": "Taraba", "ownership": "state"},
+    {"name": "The Polytechnic, Ibadan", "state": "Oyo", "ownership": "state"},
+    {"name": "The Oke-Ogun Polytechnic, Saki", "state": "Oyo", "ownership": "state"},
+    {"name": "Waziri Umaru Federal Polytechnic, Birnin Kebbi", "state": "Kebbi", "ownership": "federal"},
+    {"name": "Abraham Adesanya Polytechnic, Ijebu-Igbo", "state": "Ogun", "ownership": "private"},
+    {"name": "Adeniran Ogunsanya College of Technology, Ijebu-Imushin", "state": "Ogun", "ownership": "private"},
+    {"name": "Allover Central Polytechnic, Sango-Otta", "state": "Ogun", "ownership": "private"},
+    {"name": "Covenant Polytechnic, Aba", "state": "Abia", "ownership": "private"},
+    {"name": "Crown Polytechnic, Ado-Ekiti", "state": "Ekiti", "ownership": "private"},
+    {"name": "D.S. Adegbenro ICT Polytechnic, Itori-Ewekoro", "state": "Ogun", "ownership": "private"},
+    {"name": "Dorben Polytechnic, Bwari", "state": "FCT Abuja", "ownership": "private"},
+    {"name": "Fidei Polytechnic, Gboko", "state": "Benue", "ownership": "private"},
+    {"name": "Grace Polytechnic, Ikeja", "state": "Lagos", "ownership": "private"},
+    {"name": "Grundtvig Polytechnic, Ogun", "state": "Ogun", "ownership": "private"},
+    {"name": "IBADAN CITY Polytechnic, Ibadan", "state": "Oyo", "ownership": "private"},
+    {"name": "Igbinedion Polytechnic, Okada", "state": "Edo", "ownership": "private"},
+    {"name": "Interlink Polytechnic, Ijebu-Jesa", "state": "Osun", "ownership": "private"},
+    {"name": "Kogi State College of Education (Technical), Kabba", "state": "Kogi", "ownership": "state"},
+    {"name": "Lagos City Polytechnic, Ikeja", "state": "Lagos", "ownership": "private"},
+    {"name": "Lighthouse Polytechnic, Benin City", "state": "Edo", "ownership": "private"},
+    {"name": "Mai Idris Alooma Polytechnic, Yola", "state": "Adamawa", "ownership": "state"},
+    {"name": "Nigerian Institute of Journalism, Lagos", "state": "Lagos", "ownership": "private"},
+    {"name": "Nigerian Institute of Leather Science Technology, Zaria", "state": "Kaduna", "ownership": "federal"},
+    {"name": "Our Saviour Polytechnic, Enugu", "state": "Enugu", "ownership": "private"},
+    {"name": "Rivers State College of Arts and Science, Port Harcourt", "state": "Rivers", "ownership": "state"},
+    {"name": "Ronik Polytechnic, Lagos", "state": "Lagos", "ownership": "private"},
+    {"name": "Samaru College of Agriculture, Zaria", "state": "Kaduna", "ownership": "federal"},
+    {"name": "Sam-Ekeng Polytechnic, Calabar", "state": "Cross River", "ownership": "private"},
+    {"name": "Shaakaa Polytechnic, Oyo", "state": "Oyo", "ownership": "private"},
+    {"name": "Temple Gate Polytechnic, Aba", "state": "Abia", "ownership": "private"},
+    {"name": "The Bells Polytechnic of Technology, Ota", "state": "Ogun", "ownership": "private"},
+    {"name": "The Federal Polytechnic of Oil and Gas, Bonny", "state": "Rivers", "ownership": "federal"},
+    {"name": "The Polytechnic of Central Africa, Abeokuta", "state": "Ogun", "ownership": "private"},
+    {"name": "Town Polytechnic, Lagos", "state": "Lagos", "ownership": "private"},
+    {"name": "Wolex Polytechnic, Iwo", "state": "Osun", "ownership": "private"},
+]
+
+
+def polytechnics_to_discovered() -> list[dict[str, str | None]]:
+    return [
+        {
+            "name": p["name"],
+            "institution_type": "polytechnic",
+            "ownership_type": p["ownership"],
+            "state": p["state"],
+            "website": None,
+            "accreditation_body": "NBTE",
+            "source_url": "https://net.nbte.gov.ng (fallback list)",
+        }
+        for p in POLYTECHNICS
+    ]

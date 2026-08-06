@@ -260,13 +260,50 @@ class NBTEConnector:
         for url in [NBTE_URL, NBTE_FALLBACK_URL]:
             md = await _fetch_markdown(url)
             if md:
-                break
-        else:
-            logger.warning("NBTE: both domains unreachable. Returning empty list.")
-            return []
+                parsed = _parse_nbte_table(md, url)
+                if parsed:
+                    logger.info(f"NBTE: parsed {len(parsed)} polytechnics from {url}")
+                    return parsed
+                logger.warning(f"NBTE: {url} reachable but parser returned 0 rows")
 
-        logger.info("NBTE: site reachable but parser not yet implemented (site structure unknown).")
-        return []
+        logger.warning("NBTE: live source unavailable. Falling back to curated polytechnic seed list.")
+        from .polytechnic_seed import polytechnics_to_discovered
+        return [DiscoveredInstitution(**d) for d in polytechnics_to_discovered()]
+
+
+_NBTE_ROW_RE = re.compile(
+    r"\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|",
+    re.MULTILINE,
+)
+
+
+def _parse_nbte_table(markdown: str, source_url: str) -> list[DiscoveredInstitution]:
+    rows: list[DiscoveredInstitution] = []
+    for m in _NBTE_ROW_RE.finditer(markdown):
+        name = m.group(2).strip()
+        state = m.group(3).strip()
+        ownership_raw = m.group(4).strip().lower()
+        website = _normalize_url(m.group(5).strip() or None)
+        if not name or name.lower() in ("name", "polytechnic"):
+            continue
+        if "federal" in ownership_raw:
+            ownership = "federal"
+        elif "state" in ownership_raw:
+            ownership = "state"
+        elif "private" in ownership_raw:
+            ownership = "private"
+        else:
+            ownership = "state"
+        rows.append(DiscoveredInstitution(
+            name=name,
+            institution_type="polytechnic",
+            ownership_type=ownership,
+            state=state or None,
+            website=website,
+            accreditation_body="NBTE",
+            source_url=source_url,
+        ))
+    return rows
 
 
 class NCCEConnector:
@@ -386,6 +423,14 @@ async def run_discovery(
         logger.info(f"Saved to {output_path}")
 
     return deduped
+
+
+def write_discovery_output(insts: list[DiscoveredInstitution], path: str | Path) -> Path:
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump([asdict(i) for i in insts], f, indent=2, ensure_ascii=False)
+    return p
 
 
 if __name__ == "__main__":

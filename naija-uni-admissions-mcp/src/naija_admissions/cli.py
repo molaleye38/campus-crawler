@@ -111,6 +111,17 @@ def main() -> int:
         action="store_true",
         help="Crawl + write local JSON/CSV/SQLite, but skip Supabase upserts (preview mode)",
     )
+    parser.add_argument(
+        "--discover-only",
+        action="store_true",
+        help="Run discovery connectors (NUC/NBTE/NCCE/NMCN) and write discovered_institutions.json, then exit",
+    )
+    parser.add_argument(
+        "--discover-output",
+        type=str,
+        default=None,
+        help="Path for discovered_institutions.json (default: data/discovered_institutions.json)",
+    )
 
     args = parser.parse_args()
 
@@ -139,6 +150,15 @@ def main() -> int:
     failed_institutions = [s.strip() for s in args.failed.split(",") if s.strip()] if args.failed else None
 
     try:
+        if args.discover_only:
+            from .discovery import run_discovery, write_discovery_output
+            output_path = args.discover_output or str(
+                __import__("pathlib").Path(__file__).resolve().parent.parent.parent / "data" / "discovered_institutions.json"
+            )
+            result = asyncio.run(run_discovery())
+            write_discovery_output(result, output_path)
+            print(json.dumps({"discovered": len(result), "output": output_path}, indent=2))
+            return 0
         result = asyncio.run(_run_scrape(
             max_institutions=args.max,
             institution_types=[t.value for t in institution_types] if institution_types else None,
