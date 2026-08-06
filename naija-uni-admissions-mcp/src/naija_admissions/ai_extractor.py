@@ -38,7 +38,7 @@ class NVIDIAExtractor:
         self.base_url = (base_url or os.getenv("NVIDIA_NIM_URL", "https://integrate.api.nvidia.com/v1")).rstrip("/")
         # Default to a large, high-quality model that supports JSON mode.
         # Override via QWEN_MODEL env var.
-        self.model = model or os.getenv("QWEN_MODEL", "meta/llama-3.1-8b-instruct")
+        self.model = model or os.getenv("QWEN_MODEL", "meta/llama-3.1-70b-instruct")
         self.timeout = timeout
         self.max_retries = max_retries
         
@@ -141,25 +141,34 @@ class NVIDIAExtractor:
                 
                 response.raise_for_status()
                 result = response.json()
-                
+
                 content = result["choices"][0]["message"]["content"]
-                
-                # Parse and validate
+
+                usage = result.get("usage", {})
+                prompt_tokens = int(usage.get("prompt_tokens", 0))
+                completion_tokens = int(usage.get("completion_tokens", 0))
+                total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens))
+
                 extracted_data = json.loads(content)
                 extracted = validate_extracted_knowledge(extracted_data)
-                
-                # Calculate overall confidence
+
                 extracted.extraction_confidence = calculate_overall_confidence(extracted)
                 extracted.extraction_model = self.model
                 extracted.extracted_at = datetime.utcnow().isoformat()
-                
+                extracted.prompt_tokens = prompt_tokens
+                extracted.completion_tokens = completion_tokens
+                extracted.total_tokens = total_tokens
+
                 safe_log(
                     "nim_extraction_success",
                     institution=extracted.institution.name,
                     courses=len(extracted.courses),
                     confidence=extracted.extraction_confidence.value,
+                    prompt_tokens=prompt_tokens,
+                    completion_tokens=completion_tokens,
+                    total_tokens=total_tokens,
                 )
-                
+
                 return extracted
                 
             except json.JSONDecodeError as e:

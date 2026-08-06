@@ -18,6 +18,14 @@ Optional env vars (see `.env.example`):
 - `SUPABASE_URL` — Supabase project URL
 - `SUPABASE_ANON_KEY` — Supabase anon key (for read access)
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (for write access, crawler)
+- `NVIDIA_API_KEY` — required when `AI_EXTRACTION_ENABLED=true`
+- `NVIDIA_NIM_URL` (default `https://integrate.api.nvidia.com/v1`) — NVIDIA NIM base URL
+- `QWEN_MODEL` (default `meta/llama-3.1-70b-instruct`) — model for structured extraction
+- `AI_EXTRACTION_ENABLED` (default `false`) — toggle AI extraction; regex-only when off
+- `AI_MIN_MARKDOWN_CHARS` (default `500`) — skip AI if scraped content shorter than this
+- `AI_MAX_TOKENS_PER_INSTITUTION` (default `15000`) — cap AI tokens to prevent cost overruns
+- `LOG_LEVEL` (default `INFO`) — DEBUG/INFO/WARNING/ERROR
+- `LOG_FORMAT` (default `console`) — `console` or `json` for production ingestion
 
 Load with `python-dotenv` (already a dependency).
 

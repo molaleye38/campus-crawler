@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 from typing import Any
 
 from .ai_extractor import extract_with_nvidia
@@ -32,8 +33,10 @@ from .website_mapper import (
 )
 
 SUPABASE_ENABLED = True
-AI_EXTRACTION_ENABLED = False  # Toggle for AI vs regex-only mode
-WEBSITE_MAPPER_ENABLED = True  # Toggle for Phase 3 website mapper
+AI_EXTRACTION_ENABLED = bool(os.getenv("AI_EXTRACTION_ENABLED", "false").lower() == "true")
+WEBSITE_MAPPER_ENABLED = True
+AI_MIN_MARKDOWN_CHARS = int(os.getenv("AI_MIN_MARKDOWN_CHARS", "500"))
+AI_MAX_TOKENS_PER_INSTITUTION = int(os.getenv("AI_MAX_TOKENS_PER_INSTITUTION", "15000"))
 
 
 def _queries_for(seed) -> list[tuple[str, list[str] | None]]:
@@ -420,71 +423,92 @@ async def scrape_one(
 
     # ===== AI EXTRACTION (PRIMARY) =====
     extracted: ExtractedKnowledge | None = None
-    if AI_EXTRACTION_ENABLED:
+    if AI_EXTRACTION_ENABLED and len(combined) >= AI_MIN_MARKDOWN_CHARS:
         try:
             extracted = await extract_with_nvidia(
                 markdown=combined,
                 source_url=sources[0].url if sources else (seed.website or ""),
                 institution_type=seed.institution_type.value,
             )
-            safe_log("ai_extraction_success", name=seed.name, confidence=extracted.extraction_confidence.value if extracted.extraction_confidence else "unknown")
+            if extracted and extracted.total_tokens > AI_MAX_TOKENS_PER_INSTITUTION:
+                safe_log(
+                    "ai_extraction_token_cap_exceeded",
+                    name=seed.name,
+                    total_tokens=extracted.total_tokens,
+                    cap=AI_MAX_TOKENS_PER_INSTITUTION,
+                )
+                extracted = None
+            else:
+                safe_log(
+                    "ai_extraction_success",
+                    name=seed.name,
+                    confidence=extracted.extraction_confidence.value if extracted.extraction_confidence else "unknown",
+                    tokens=extracted.total_tokens,
+                )
         except Exception as e:
             safe_log("ai_extraction_failed", error=str(e), name=seed.name)
             extracted = None
+    elif AI_EXTRACTION_ENABLED and len(combined) < AI_MIN_MARKDOWN_CHARS:
+        safe_log(
+            "ai_extraction_skipped_short_content",
+            name=seed.name,
+            content_chars=len(combined),
+            min_chars=AI_MIN_MARKDOWN_CHARS,
+        )
 
-    # ===== APPLY EXTRACTED KNOWLEDGE + REGEX FALLBACK =====
+    # ===== REGEX FALLBACK (always run, AI fills gaps) =====
+    req: AdmissionRequirements | None = None
+    try:
+        req = parse_requirements(combined, seed.institution_type)
+    except Exception as e:
+        safe_log("requirements_parse_error", error=str(e), name=seed.name)
+    inst.admission_requirements = req
+
+    fees: list[FeeTier] = []
+    for chunk, source in zip(raw_chunks, sources, strict=False):
+        try:
+            t = parse_fees(chunk, source.url)
+            if t:
+                fees.extend(t)
+        except Exception:
+            continue
+    seen_fees: set[tuple[str, int | None]] = set()
+    unique_fees: list[FeeTier] = []
+    for f in fees:
+        key = (f.program_or_faculty, f.tuition_per_session_ngn)
+        if key in seen_fees:
+            continue
+        seen_fees.add(key)
+        unique_fees.append(f)
+    inst.fee_tiers = unique_fees
+
+    app_proc_dict: dict[str, Any] | None = None
+    try:
+        app_proc_dict = parse_application_process(combined)
+    except Exception as e:
+        safe_log("application_parse_error", error=str(e), name=seed.name)
+    if app_proc_dict:
+        inst.application_process = ApplicationProcess(**app_proc_dict)
+
+    catchment: list[CatchmentArea] = []
+    try:
+        catchment = parse_catchment(combined, seed.institution_type, seed.type.value, seed.state)
+    except Exception as e:
+        safe_log("catchment_parse_error", error=str(e), name=seed.name)
+    inst.catchment_areas = catchment
+
+    faculties: list[str] = []
+    programs: list[Program] = []
+    try:
+        faculties, programs = parse_programs(combined, seed.institution_type)
+    except Exception as e:
+        safe_log("programs_parse_error", error=str(e), name=seed.name)
+    inst.faculties = faculties
+    inst.programs = programs
+
+    # ===== AI OVERLAY: fill gaps without overwriting valid regex data =====
     if extracted:
         _apply_extracted_knowledge(inst, extracted, seed)
-    else:
-        # Full regex fallback
-        req: AdmissionRequirements | None = None
-        try:
-            req = parse_requirements(combined, seed.institution_type)
-        except Exception as e:
-            safe_log("requirements_parse_error", error=str(e), name=seed.name)
-        inst.admission_requirements = req
-
-        fees: list[FeeTier] = []
-        for chunk, source in zip(raw_chunks, sources, strict=False):
-            try:
-                t = parse_fees(chunk, source.url)
-                if t:
-                    fees.extend(t)
-            except Exception:
-                continue
-        seen_fees: set[tuple[str, int | None]] = set()
-        unique_fees: list[FeeTier] = []
-        for f in fees:
-            key = (f.program_or_faculty, f.tuition_per_session_ngn)
-            if key in seen_fees:
-                continue
-            seen_fees.add(key)
-            unique_fees.append(f)
-        inst.fee_tiers = unique_fees
-
-        app_proc_dict: dict[str, Any] | None = None
-        try:
-            app_proc_dict = parse_application_process(combined)
-        except Exception as e:
-            safe_log("application_parse_error", error=str(e), name=seed.name)
-        if app_proc_dict:
-            inst.application_process = ApplicationProcess(**app_proc_dict)
-
-        catchment: list[CatchmentArea] = []
-        try:
-            catchment = parse_catchment(combined, seed.institution_type, seed.type.value, seed.state)
-        except Exception as e:
-            safe_log("catchment_parse_error", error=str(e), name=seed.name)
-        inst.catchment_areas = catchment
-
-        faculties: list[str] = []
-        programs: list[Program] = []
-        try:
-            faculties, programs = parse_programs(combined, seed.institution_type)
-        except Exception as e:
-            safe_log("programs_parse_error", error=str(e), name=seed.name)
-        inst.faculties = faculties
-        inst.programs = programs
 
     # If website not already captured and we found a credible one, grab it
     if not inst.website:

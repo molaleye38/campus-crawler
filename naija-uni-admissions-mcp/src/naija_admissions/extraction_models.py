@@ -357,6 +357,9 @@ class ExtractedKnowledge(BaseModel):
     extraction_confidence: ConfidenceLevel = ConfidenceLevel.LOW
     extraction_model: str = "nvidia/qwen2.5-coder-32b-instruct"
     extracted_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 # ============================================================================
