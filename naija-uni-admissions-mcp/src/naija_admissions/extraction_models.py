@@ -385,6 +385,327 @@ EXTRACTION RULES:
 9. For catchment: Federal universities → ELDS unless explicit states listed. State universities → host state.
 10. Post-UTME: "screening" if no exam mentioned, "examination" if exam mentioned.
 
+CRITICAL JSON STRUCTURE REQUIREMENTS (the LLM output must match this EXACTLY):
+
+{
+  "institution": {
+    "name": "University of Lagos",
+    "short_name": "UNILAG",
+    "institution_type": "university",
+    "ownership_type": "federal",
+    "state": "Lagos",
+    "city": "Lagos",
+    "website": "https://unilag.edu.ng",
+    "admission_portal": "https://admissions.unilag.edu.ng",
+    "year_established": 1962,
+    "jamb_code": "UNILAG",
+    "contact_email": null,
+    "phone": null,
+    "address": null,
+    "accreditation_body": "NUC",
+    "confidence": "high",
+    "source_url": "https://unilag.edu.ng/admissions",
+    "crawled_at": "2025-01-15T10:30:00Z"
+  },
+  "faculties": [
+    {"name": "Faculty of Science", "short_name": "Sci", "confidence": "high"},
+    {"name": "Faculty of Engineering", "short_name": "Eng", "confidence": "high"}
+  ],
+  "departments": [
+    {"name": "Computer Science", "short_name": "CS", "code": "CSC", "faculty_name": "Faculty of Science", "confidence": "high"},
+    {"name": "Electrical Engineering", "short_name": "EE", "code": "EEE", "faculty_name": "Faculty of Engineering", "confidence": "high"},
+    {"name": "Medicine", "short_name": "MED", "code": "MED", "faculty_name": "College of Medicine", "confidence": "high"}
+  ],
+  "courses": [
+    {
+      "name": "Computer Science",
+      "degree": "BSc",
+      "level": "undergraduate",
+      "duration_years": 4,
+      "affiliated_university": null,
+      "jamb_subject_combination": ["English Language", "Mathematics", "Physics", "Chemistry"],
+      "faculty_name": "Faculty of Science",
+      "department_name": "Computer Science",
+      "confidence": "high"
+    },
+    {
+      "name": "Medicine and Surgery",
+      "degree": "MBBS",
+      "level": "undergraduate",
+      "duration_years": 6,
+      "affiliated_university": null,
+      "jamb_subject_combination": ["English Language", "Biology", "Chemistry", "Physics"],
+      "faculty_name": "College of Medicine",
+      "department_name": "Medicine",
+      "confidence": "high"
+    },
+    {
+      "name": "Electrical Engineering",
+      "degree": "BEng",
+      "level": "undergraduate",
+      "duration_years": 5,
+      "affiliated_university": null,
+      "jamb_subject_combination": ["English Language", "Mathematics", "Physics", "Chemistry"],
+      "faculty_name": "Faculty of Engineering",
+      "department_name": "Electrical Engineering",
+      "confidence": "high"
+    }
+  ],
+  "course_aliases": [
+    {"alias": "Comp Sci", "alias_type": "abbreviation", "course_name": "Computer Science"}
+  ],
+  "subjects": [
+    {"name": "Mathematics", "code": "MTH", "subject_category": "core"},
+    {"name": "Physics", "code": "PHY", "subject_category": "science"}
+  ],
+  "subject_aliases": [
+    {"alias": "Maths", "subject_name": "Mathematics"}
+  ],
+  "admission_requirements": [
+    {
+      "olevel_credits_min": 5,
+      "olevel_sittings_max": 2,
+      "awaiting_result_accepted": true,
+      "direct_entry_requirements": "A-Level passes in Mathematics and Physics",
+      "minimum_jamb": 200,
+      "post_utme_required": true,
+      "post_utme_format": "screening",
+      "post_utme_weight_pct": 50,
+      "aggregate_formula": "((JAMB/8) + (POST_UTME/2))",
+      "course_name": "Computer Science",
+      "confidence": "high"
+    },
+    {
+      "olevel_credits_min": 5,
+      "olevel_sittings_max": 2,
+      "awaiting_result_accepted": true,
+      "direct_entry_requirements": "A-Level passes in Biology, Chemistry, Physics",
+      "minimum_jamb": 250,
+      "post_utme_required": true,
+      "post_utme_format": "screening",
+      "post_utme_weight_pct": 50,
+      "aggregate_formula": "((JAMB/8) + (POST_UTME/2))",
+      "course_name": "Medicine and Surgery",
+      "confidence": "high"
+    },
+    {
+      "olevel_credits_min": 5,
+      "olevel_sittings_max": 2,
+      "awaiting_result_accepted": true,
+      "direct_entry_requirements": "A-Level passes in Mathematics and Physics",
+      "minimum_jamb": 220,
+      "post_utme_required": true,
+      "post_utme_format": "screening",
+      "post_utme_weight_pct": 50,
+      "aggregate_formula": "((JAMB/8) + (POST_UTME/2))",
+      "course_name": "Electrical Engineering",
+      "confidence": "high"
+    }
+  ],
+  "olevel_requirements": [
+    {"subject_name": "English Language", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Mathematics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Physics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Chemistry", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Biology", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "English Language", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Mathematics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Chemistry", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Physics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "English Language", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Mathematics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Physics", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Chemistry", "is_required": true, "min_grade": "C6", "notes": null, "admission_req_course": "Electrical Engineering"}
+  ],
+  "utme_requirements": [
+    {"subject_name": "English Language", "is_required": true, "is_compulsory": true, "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Mathematics", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Physics", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "Chemistry", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Computer Science"},
+    {"subject_name": "English Language", "is_required": true, "is_compulsory": true, "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Biology", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Chemistry", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "Physics", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Medicine and Surgery"},
+    {"subject_name": "English Language", "is_required": true, "is_compulsory": true, "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Mathematics", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Physics", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Electrical Engineering"},
+    {"subject_name": "Chemistry", "is_required": true, "is_compulsory": false, "notes": null, "admission_req_course": "Electrical Engineering"}
+  ],
+  "direct_entry": [
+    {
+      "qualification_type": "A-Level",
+      "qualification_subject": "Mathematics, Physics",
+      "min_grade": "AAB",
+      "min_cgpa": null,
+      "accepts_ijmb": true,
+      "accepts_jupeb": true,
+      "notes": null,
+      "admission_req_course": "Computer Science"
+    },
+    {
+      "qualification_type": "A-Level",
+      "qualification_subject": "Biology, Chemistry, Physics",
+      "min_grade": "AAB",
+      "min_cgpa": null,
+      "accepts_ijmb": true,
+      "accepts_jupeb": true,
+      "notes": null,
+      "admission_req_course": "Medicine and Surgery"
+    },
+    {
+      "qualification_type": "A-Level",
+      "qualification_subject": "Mathematics, Physics",
+      "min_grade": "AAB",
+      "min_cgpa": null,
+      "accepts_ijmb": true,
+      "accepts_jupeb": true,
+      "notes": null,
+      "admission_req_course": "Electrical Engineering"
+    }
+  ],
+  "post_utme": [
+    {
+      "required": true,
+      "format": "screening",
+      "weight_pct": 50,
+      "min_score": 50,
+      "duration_minutes": null,
+      "subjects": ["English Language", "Mathematics", "Physics", "Chemistry"],
+      "past_questions_url": null,
+      "notes": null,
+      "admission_req_course": "Computer Science"
+    },
+    {
+      "required": true,
+      "format": "screening",
+      "weight_pct": 50,
+      "min_score": 50,
+      "duration_minutes": null,
+      "subjects": ["English Language", "Biology", "Chemistry", "Physics"],
+      "past_questions_url": null,
+      "notes": null,
+      "admission_req_course": "Medicine and Surgery"
+    },
+    {
+      "required": true,
+      "format": "screening",
+      "weight_pct": 50,
+      "min_score": 50,
+      "duration_minutes": null,
+      "subjects": ["English Language", "Mathematics", "Physics", "Chemistry"],
+      "past_questions_url": null,
+      "notes": null,
+      "admission_req_course": "Electrical Engineering"
+    }
+  ],
+  "aggregate_formulas": [
+    {
+      "formula_text": "(UTME/8) + (POST_UTME/2)",
+      "formula_json": {"utme_weight": 0.125, "post_utme_weight": 0.5},
+      "course_name": "Computer Science",
+      "effective_from": "2025/2026",
+      "effective_to": null,
+      "is_default": true,
+      "confidence": "high"
+    }
+  ],
+  "departmental_cutoffs": [
+    {
+      "merit_cutoff": 250,
+      "catchment_cutoff": 240,
+      "elds_cutoff": 230,
+      "course_name": "Computer Science",
+      "academic_session": "2025/2026",
+      "source_url": "https://unilag.edu.ng/admissions/cutoffs",
+      "aggregate_formula_text": "(UTME/8) + (POST_UTME/2)",
+      "confidence": "high"
+    },
+    {
+      "merit_cutoff": 280,
+      "catchment_cutoff": 270,
+      "elds_cutoff": 260,
+      "course_name": "Medicine and Surgery",
+      "academic_session": "2025/2026",
+      "source_url": "https://unilag.edu.ng/admissions/cutoffs",
+      "aggregate_formula_text": "(UTME/8) + (POST_UTME/2)",
+      "confidence": "high"
+    },
+    {
+      "merit_cutoff": 240,
+      "catchment_cutoff": 230,
+      "elds_cutoff": 220,
+      "course_name": "Electrical Engineering",
+      "academic_session": "2025/2026",
+      "source_url": "https://unilag.edu.ng/admissions/cutoffs",
+      "aggregate_formula_text": "(UTME/8) + (POST_UTME/2)",
+      "confidence": "high"
+    }
+  ],
+  "catchment": [
+    {
+      "name": "UNILAG Catchment Area",
+      "eligible_states": ["Lagos", "Ogun", "Oyo", "Osun", "Ondo", "Ekiti", "Kwara"],
+      "policy": "geographical",
+      "details": "Federal university - geographical catchment plus ELDS",
+      "confidence": "high"
+    }
+  ],
+  "fees": [
+    {
+      "fee_category": "tuition",
+      "amount_ngn": 100000,
+      "amount_usd": 62,
+      "currency": "NGN",
+      "indigene_amount_ngn": 100000,
+      "non_indigene_amount_ngn": 100000,
+      "academic_session": "2025/2026",
+      "is_per_session": true,
+      "payment_schedule": "per session",
+      "course_name": "Computer Science",
+      "faculty_name": "Faculty of Science",
+      "source_url": "https://unilag.edu.ng/fees",
+      "notes": "Indigene and non-indigene same for federal university",
+      "confidence": "high"
+    }
+  ],
+  "deadlines": [
+    {
+      "deadline_type": "application_close",
+      "deadline_date": "2025-08-31",
+      "academic_session": "2025/2026",
+      "course_name": "Computer Science",
+      "is_extended": false,
+      "extension_date": null,
+      "source_url": "https://admissions.unilag.edu.ng",
+      "notes": null,
+      "confidence": "high"
+    }
+  ],
+  "admission_news": [],
+  "source_documents": [
+    {
+      "url": "https://unilag.edu.ng/admissions",
+      "document_type": "webpage",
+      "title": "UNILAG Admissions 2025/2026",
+      "content_hash": "abc123",
+      "date_published": null,
+      "confidence": "high",
+      "academic_session": "2025/2026",
+      "raw_content": null,
+      "extracted_data": null,
+      "file_size_bytes": null,
+      "mime_type": null,
+      "course_name": null
+    }
+  ],
+  "extraction_confidence": "high",
+  "extraction_model": "meta/llama-3.1-70b-instruct",
+  "extracted_at": "2025-01-15T10:30:00Z",
+  "prompt_tokens": 1500,
+  "completion_tokens": 2500,
+  "total_tokens": 4000
+}
+
 NIGERIAN CONTEXT:
 - Institution types: university, polytechnic, college_of_education, nursing_school, college_of_health_technology, innovation_enterprise_institution, monotechnic
 - Ownership: federal, state, private
@@ -394,8 +715,7 @@ NIGERIAN CONTEXT:
 - O-Level: Minimum 5 credits including English & Mathematics
 - ELDS states (21): Adamawa, Bauchi, Bayelsa, Benue, Borno, Cross River, Gombe, Jigawa, Kaduna, Kano, Katsina, Kebbi, Kogi, Kwara, Nasarawa, Niger, Plateau, Rivers, Sokoto, Taraba, Yobe, Zamfara
 
-OUTPUT FORMAT: Single JSON object matching ExtractedKnowledge exactly."""
-
+OUTPUT FORMAT: Single JSON object matching ExtractedKnowledge exactly. ALL lists must be arrays of objects. ALL optional fields use null, not empty string. ALL confidence fields use "low"/"medium"/"high" (lowercase). ALL required fields must be present with valid values (not null for required fields like olevel_sittings_max, awaiting_result_accepted, min_grade, min_score, amount_ngn, academic_session, deadline_date, etc.)."""
 
 def build_user_prompt(
     markdown_content: str,
