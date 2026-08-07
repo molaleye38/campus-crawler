@@ -277,7 +277,6 @@ class Crawl4AIClient:
         if self._scrape_count and self._scrape_count % _BROWSER_RESET_EVERY == 0:
             await self.reset_browser()
 
-        last_exc: Exception | None = None
         for attempt in range(_MAX_SCRAPE_RETRIES + 1):
             try:
                 task = asyncio.wait_for(
@@ -292,15 +291,13 @@ class Crawl4AIClient:
                 )
                 result = await task
                 self._scrape_count += 1
-            except asyncio.TimeoutError:
-                last_exc = asyncio.TimeoutError(f"Scrape timeout after {timeout_sec}s")
+            except TimeoutError:
                 safe_log("crawl4ai_scrape_timeout", url=url, timeout_sec=timeout_sec, attempt=attempt + 1)
                 if attempt < _MAX_SCRAPE_RETRIES:
                     await asyncio.sleep(2 ** attempt)
                     continue
                 return None
             except Exception as e:
-                last_exc = e
                 safe_log("crawl4ai_scrape_error", url=url, error=str(e), attempt=attempt + 1)
                 if attempt < _MAX_SCRAPE_RETRIES:
                     await asyncio.sleep(2 ** attempt)
@@ -308,7 +305,6 @@ class Crawl4AIClient:
                 return None
 
             if not result.success:
-                last_exc = Exception(result.error_message or "Unknown crawl4ai error")
                 safe_log("crawl4ai_scrape_failed", url=url, error=result.error_message, attempt=attempt + 1)
                 if attempt < _MAX_SCRAPE_RETRIES:
                     await asyncio.sleep(2 ** attempt)

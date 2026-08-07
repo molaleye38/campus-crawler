@@ -28,8 +28,8 @@ from .utils import polite_delay, safe_log
 from .website_mapper import (
     SiteMap,
     filter_urls_for_scraping,
-    map_institution_website,
     get_cached_content,
+    map_institution_website,
 )
 
 SUPABASE_ENABLED = True
@@ -378,7 +378,7 @@ async def scrape_one(
     async def scrape_with_timeout(url: str) -> str | None:
         try:
             return await client.scrape(url)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             safe_log("scrape_timeout", url=url, name=seed.name)
             return None
         except Exception as e:
@@ -409,7 +409,7 @@ async def scrape_one(
 
     try:
         await asyncio.wait_for(scrape_institution_with_overall_timeout(), timeout=INSTITUTION_TIMEOUT_SEC)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         safe_log("institution_timeout", name=seed.name, timeout_sec=INSTITUTION_TIMEOUT_SEC)
 
     if not raw_chunks:

@@ -18,6 +18,7 @@ state.json schema:
 from __future__ import annotations
 
 import json
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -104,13 +105,13 @@ def recover_stale_in_progress(state: dict[str, Any], max_age_min: int = 30) -> s
     if not in_progress_at:
         clear_in_progress(state)
         return in_progress
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
     try:
         ts = datetime.fromisoformat(in_progress_at.replace("Z", "+00:00"))
     except Exception:
         clear_in_progress(state)
         return in_progress
-    age = datetime.now(timezone.utc) - ts
+    age = datetime.now(UTC) - ts
     if age > timedelta(minutes=max_age_min):
         clear_in_progress(state)
         return in_progress
