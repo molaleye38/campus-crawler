@@ -13,7 +13,7 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -122,7 +122,7 @@ async def upsert_institution(
         "website": website,
         "admission_portal": admission_portal,
         "year_established": year_established,
-        "last_updated": last_updated or datetime.utcnow().isoformat(),
+        "last_updated": last_updated or datetime.now(UTC).isoformat(),
     }
     
     result = await run_with_retry(
@@ -384,7 +384,7 @@ async def upsert_source_document(
         "document_type": document_type,
         "title": title,
         "content_hash": content_hash,
-        "crawled_at": crawled_at or datetime.utcnow().isoformat(),
+        "crawled_at": crawled_at or datetime.now(UTC).isoformat(),
         "confidence": confidence,
         "academic_session": academic_session,
     }
@@ -436,7 +436,7 @@ async def log_crawl(
         "error_message": error_message,
         "pages_crawled": pages_crawled,
         "metadata": metadata or {},
-        "crawled_at": datetime.utcnow().isoformat(),
+        "crawled_at": datetime.now(UTC).isoformat(),
     }
     data = {k: v for k, v in data.items() if v is not None}
     
@@ -470,7 +470,7 @@ async def stage_raw_crawl(
         "content_hash": content_hash,
         "academic_session": academic_session,
         "status": "pending_review",
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
     
     result = await run_with_retry(client.table("raw_crawl_data").insert(data).execute())
@@ -530,7 +530,7 @@ async def reject_raw_crawl(
             "status": "rejected",
             "reviewed_by": reviewer,
             "review_notes": notes,
-            "reviewed_at": datetime.utcnow().isoformat(),
+"reviewed_at": datetime.now(UTC).isoformat(),
         }).eq("id", raw_crawl_id).execute()
     )
     return bool(result.data)

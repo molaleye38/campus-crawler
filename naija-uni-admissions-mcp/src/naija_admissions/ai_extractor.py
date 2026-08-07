@@ -8,7 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
@@ -154,7 +154,7 @@ class NVIDIAExtractor:
 
                 extracted.extraction_confidence = calculate_overall_confidence(extracted)
                 extracted.extraction_model = self.model
-                extracted.extracted_at = datetime.utcnow().isoformat()
+                extracted.extracted_at = datetime.now(UTC).isoformat()
                 extracted.prompt_tokens = prompt_tokens
                 extracted.completion_tokens = completion_tokens
                 extracted.total_tokens = total_tokens
@@ -211,7 +211,7 @@ class NVIDIAExtractor:
             ),
             extraction_confidence=ConfidenceLevel.LOW,
             extraction_model=self.model,
-            extracted_at=datetime.utcnow().isoformat(),
+            extracted_at=datetime.now(UTC).isoformat(),
         )
 
 

@@ -8,7 +8,7 @@ non-university types.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
@@ -106,7 +106,7 @@ class ApplicationProcess(BaseModel):
 class Source(BaseModel):
     url: str
     provider: str = "crawl4ai"
-    accessed_on: str = Field(default_factory=lambda: datetime.utcnow().date().isoformat())
+    accessed_on: str = Field(default_factory=lambda: datetime.now(UTC).date().isoformat())
 
 
 class Institution(BaseModel):
@@ -130,7 +130,7 @@ class Institution(BaseModel):
     sources: list[Source] = Field(default_factory=list)
     raw_chunks: list[str] = Field(default_factory=list)
     confidence: dict[str, Any] = Field(default_factory=lambda: {"overall": "low", "missing_fields": []})
-    last_updated: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    last_updated: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def compute_confidence(self) -> None:
         required = [

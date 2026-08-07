@@ -10,7 +10,7 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -89,7 +89,7 @@ async def upsert_institution(
         "website": website,
         "admission_portal": admission_portal,
         "year_established": year_established,
-        "last_updated": datetime.utcnow().isoformat(),
+        "last_updated": datetime.now(UTC).isoformat(),
     }
     data = {k: v for k, v in data.items() if v is not None}
 
@@ -353,7 +353,7 @@ async def upsert_source_document(
         "confidence": confidence,
         "academic_session": academic_session,
         "raw_content": raw_content,
-        "crawled_at": datetime.utcnow().isoformat(),
+        "crawled_at": datetime.now(UTC).isoformat(),
     }
     data = {k: v for k, v in data.items() if v is not None}
 

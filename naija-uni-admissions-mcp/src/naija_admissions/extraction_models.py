@@ -6,7 +6,7 @@ should return when extracting admission knowledge from crawled content.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -144,7 +144,7 @@ class ExtractedInstitution(BaseModel):
     accreditation_body: str | None = None
     confidence: ConfidenceLevel = ConfidenceLevel.LOW
     source_url: str
-    crawled_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    crawled_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 class ExtractedFaculty(BaseModel):
@@ -356,7 +356,7 @@ class ExtractedKnowledge(BaseModel):
     # Metadata
     extraction_confidence: ConfidenceLevel = ConfidenceLevel.LOW
     extraction_model: str = "nvidia/qwen2.5-coder-32b-instruct"
-    extracted_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    extracted_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0

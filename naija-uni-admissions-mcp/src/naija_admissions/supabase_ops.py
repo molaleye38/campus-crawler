@@ -10,7 +10,7 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -109,7 +109,7 @@ def _generate_content_hash(data: dict) -> str:
 
 
 def _now_iso() -> str:
-    return datetime.utcnow().isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 # ============================================================================

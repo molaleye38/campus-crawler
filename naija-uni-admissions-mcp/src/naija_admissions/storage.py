@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import mimetypes
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -277,7 +277,7 @@ def store_crawl_artifacts(
     """
     results = {}
     url_slug = slugify(source_url)[:100]
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     
     if html_content:
         results["html"] = upload_bytes(

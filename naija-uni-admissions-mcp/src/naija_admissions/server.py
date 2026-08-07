@@ -321,7 +321,7 @@ async def _run_scrape(
     resume.state_save(STATE_PATH, state)
 
     skipped = max(0, len(seeds_all) - len(pending) - failed)
-    next_window = (_dt.datetime.utcnow().replace(day=1) + _dt.timedelta(days=32)).replace(day=1).date().isoformat()
+    next_window = (_dt.datetime.now(_dt.UTC).replace(day=1) + _dt.timedelta(days=32)).replace(day=1).date().isoformat()
 
     start_dt = _dt.datetime.fromisoformat(started_at.replace("Z", "+00:00")) if "Z" in started_at else _dt.datetime.fromisoformat(started_at)
     end_dt = _dt.datetime.fromisoformat(ended_at.replace("Z", "+00:00")) if "Z" in ended_at else _dt.datetime.fromisoformat(ended_at)
